@@ -5,7 +5,8 @@
       <li v-for="project in projects" :key="project.id">
         <strong>Title:</strong> {{ project.title }} <br>
         <strong>Content:</strong> {{ project.content }} <br>
-        <strong>Created by:</strong> {{ project.nickname }}
+        <strong>Created by:</strong> 
+        <router-link :to="`/user/${project.username}`">{{ project.nickname }}</router-link> <!-- 将nickname转换为链接 -->
       </li>
     </ul>
   </div>

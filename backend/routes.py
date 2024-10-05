@@ -96,7 +96,7 @@ def get_projects():
         nickname = user.nickname if user else None  # 如果找不到用户，nickname 为 None
 
         # 构建项目和用户的 JSON 数据
-        project_list.bpend({
+        project_list.append({
             'id': project.id,
             'title': project.title,
             'content': project.content,
@@ -150,6 +150,7 @@ def get_user_by_username(username):
     if user:
         # 返回用户信息（不包括密码）
         return jsonify({
+            'id': user.id,
             'username': user.username,
             'nickname': user.nickname,
             'gender': user.gender,

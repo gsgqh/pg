@@ -50,7 +50,10 @@
           this.user = response.data;
   
           // 比较当前登录用户和查看的用户是否一致
-          this.isCurrentUser = this.user.username === currentUsername;
+          this.isCurrentUser = this.user.id === currentUsername;
+          console.log('当前用户:', currentUsername);
+          console.log('请求的用户:', this.user.id);
+          console.log('isCurrentUser:', this.isCurrentUser);
         } catch (error) {
           console.error('获取用户信息失败:', error);
           alert('获取用户信息失败，请检查是否已登录');
