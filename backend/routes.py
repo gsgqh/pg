@@ -107,6 +107,31 @@ def get_projects():
     # 返回项目列表的 JSON 格式
     return jsonify(project_list)
 
+# 获取当前用户信息接口，要求JWT认证
+@bp.route('/profile', methods=['GET'])
+@jwt_required()
+def get_profile():
+    # 获取当前用户的身份ID
+    current_user_id = get_jwt_identity()
+    
+    # 根据用户ID查询用户信息
+    user = User.query.get(current_user_id)
+    
+    if user:
+        return jsonify({
+            'id': user.id,
+            'username': user.username,
+            'nickname': user.nickname,
+            'gender': user.gender,
+            'birthday': user.birthday,
+            'signature': user.signature,
+            'school': user.school,
+            'major': user.major,
+            'interests': user.interests
+        }), 200
+    else:
+        return jsonify({'error': 'User not found'}), 404
+
 
 # 获取所有用户接口，接收GET请求，要求JWT认证
 @bp.route('/users', methods=['GET'])
@@ -116,13 +141,11 @@ def get_users():
     return jsonify([{'id': user.id, 'username': user.username, 'nickname': user.nickname} for user in users]), 200
 
 
-# 查看用户个人信息，接收GET请求
-@bp.route('/profile', methods=['GET'])
-@jwt_required()  # 确保用户登录
-def get_user_profile():
-    # 获取当前登录用户信息
-    current_user_id = get_jwt_identity()
-    user = User.query.filter_by(id=current_user_id).first()
+# 查看指定用户信息接口，接收GET请求
+@bp.route('/user/<username>', methods=['GET'])
+def get_user_by_username(username):
+    # 根据用户名查询用户
+    user = User.query.filter_by(username=username).first()
 
     if user:
         # 返回用户信息（不包括密码）
@@ -138,6 +161,7 @@ def get_user_profile():
         })
     else:
         return jsonify({'error': 'User not found'}), 404
+
         
 
 # 编辑用户个人信息，接收PUT请求

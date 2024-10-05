@@ -18,7 +18,7 @@ const routes = [
   { path: '/create-project', component: CreateProject },
   { path: '/projects', component: ViewProjects },
   { path: '/users', component: ViewUsers } ,
-  { path: '/profile', component: ViewUserProfile },       // 查看用户信息
+  { path: '/user/:username', component: ViewUserProfile },  // 动态路由，支持查看不同用户信息
   { path: '/edit-profile', component: EditUserProfile }    // 编辑用户信息
 ];
 
