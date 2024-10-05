@@ -5,7 +5,7 @@
       <li v-for="project in projects" :key="project.id">
         <strong>Title:</strong> {{ project.title }} <br>
         <strong>Content:</strong> {{ project.content }} <br>
-        <strong>Created by:</strong> {{ project.username }}
+        <strong>Created by:</strong> {{ project.nickname }}
       </li>
     </ul>
   </div>

@@ -3,6 +3,7 @@
     <h2>Register</h2>
     <input v-model="username" placeholder="Username" />
     <input v-model="password" type="password" placeholder="Password" />
+    <input v-model="nickname" placeholder="Nickname" /> <!-- 新增昵称输入框 -->
     <button @click="register">Register</button>
     <p v-if="errorMessage" style="color: red;">{{ errorMessage }}</p> <!-- 显示错误消息 -->
   </div>
@@ -16,6 +17,7 @@ export default {
     return {
       username: '',
       password: '',
+      nickname: '',  // 用于存储昵称
       errorMessage: ''  // 用于存储错误消息
     };
   },
@@ -24,7 +26,8 @@ export default {
       this.errorMessage = '';  // 清空之前的错误消息
       axios.post('http://localhost:5000/register', {
         username: this.username,
-        password: this.password
+        password: this.password,
+        nickname: this.nickname  // 传递昵称到后端
       })
       .then(response => {
         if (response.data.success) {
