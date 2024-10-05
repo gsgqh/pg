@@ -2,8 +2,6 @@ from flask import Flask, request, jsonify  # 导入Flask框架和相关模块
 from flask_sqlalchemy import SQLAlchemy  # 导入SQLAlchemy，用于数据库操作
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity  # 导入JWT模块，处理用户认证
 from flask_cors import CORS  # 导入CORS，允许跨域请求
-from flask_login import current_user, login_required  # 使用 Flask-Login 进行用户管理
-
 
 app = Flask(__name__)  # 创建Flask应用
 CORS(app)  # 允许所有域名进行跨域请求
