@@ -6,8 +6,6 @@ from model import db
 from routes import bp
 from chat import chat,socketio
 
-
-
 app = Flask(__name__)  # 创建Flask应用
 CORS(app)  # 允许所有域名进行跨域请求
 
