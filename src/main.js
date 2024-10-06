@@ -9,6 +9,7 @@ import Home from './components/HomePage.vue';
 import ViewUsers from './components/ViewUsers.vue';
 import ViewUserProfile from './components/ViewUserProfile.vue';
 import EditUserProfile from './components/EditUserProfile.vue';
+import Chat from './components/ChatMessage.vue'; // 导入聊天组件
 
 // 定义路由
 const routes = [
@@ -19,7 +20,8 @@ const routes = [
   { path: '/projects', component: ViewProjects },
   { path: '/users', component: ViewUsers } ,
   { path: '/user/:username', component: ViewUserProfile },  // 动态路由，支持查看不同用户信息
-  { path: '/edit-profile', component: EditUserProfile }    // 编辑用户信息
+  { path: '/edit-profile', component: EditUserProfile } ,   // 编辑用户信息
+  { path: '/chat/:recipientId', component: Chat }
 ];
 
 // 创建路由实例

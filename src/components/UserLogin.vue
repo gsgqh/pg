@@ -33,7 +33,9 @@ export default {
           // 存储访问令牌
           localStorage.setItem('token', accessToken);
           // 登录成功后跳转到项目列表
-          this.$router.push('/projects');
+          this.$router.push('/projects').then(() => {
+            window.location.reload(); // 刷新页面
+          });
         } else {
           this.errorMessage = response.data.message;  // 显示后端返回的消息
         }

@@ -13,6 +13,7 @@
       </div>
       <!-- 只有当当前用户查看自己的信息时才显示编辑按钮 -->
       <router-link v-if="isCurrentUser" to="/edit-profile">编辑信息</router-link>
+      <button v-else @click="startChat">聊天</button> <!-- 添加聊天按钮 -->
     </div>
   </template>
   
@@ -58,8 +59,13 @@
           console.error('获取用户信息失败:', error);
           alert('获取用户信息失败，请检查是否已登录');
         }
-      }
+      },
+      startChat() {
+      // 跳转到聊天页面，使用接收者的ID
+      this.$router.push(`/chat/${this.user.id}`);
     }
+    }
+    
   };
   </script>
   

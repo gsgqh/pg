@@ -1,9 +1,14 @@
 from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
+from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy.orm import relationship
 
 db = SQLAlchemy()
 
 # 定义用户模型，继承自SQLAlchemy的Model类
 class User(db.Model):
+    __tablename__ = 'users'
+
     id = db.Column(db.Integer, primary_key=True)  # 用户ID，主键
     username = db.Column(db.String(80), unique=True, nullable=False)  # 用户名，唯一且不能为空
     password = db.Column(db.String(200), nullable=False)  # 密码，不能为空
@@ -17,7 +22,22 @@ class User(db.Model):
 
 # 定义项目模型，继承自SQLAlchemy的Model类
 class Project(db.Model):
+    __tablename__ = 'projects'
+
     id = db.Column(db.Integer, primary_key=True)  # 项目ID，主键
     title = db.Column(db.String(200), nullable=False)  # 项目标题，不能为空
     content = db.Column(db.Text, nullable=False)  # 项目内容，不能为空
     username = db.Column(db.String(80), nullable=False)  # 当前创建项目的用户的用户名，不能为空
+
+# 定义会话模型，继承自SQLAlchemy的Model类
+class ChatMessage(db.Model):
+    __tablename__ = 'chat_messages'
+
+    id = Column(Integer, primary_key=True)
+    sender_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+    recipient_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+    message = Column(String(500), nullable=False)
+    timestamp = Column(db.DateTime, default=datetime.now)
+
+    sender = relationship('User', foreign_keys=[sender_id])
+    recipient = relationship('User', foreign_keys=[recipient_id])

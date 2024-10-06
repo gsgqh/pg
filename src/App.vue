@@ -49,7 +49,7 @@ export default {
       this.username = ''; // 清空用户名
       this.$router.push('/login'); // 跳转到登录页
     }
-  }
+  },
 };
 </script>
 
