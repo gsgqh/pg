@@ -3,15 +3,18 @@
     <header>
       <h1>项目演示</h1>
       <nav>
-        <router-link to="/">主页</router-link>
-        <router-link to="/register">注册</router-link>
-        <router-link to="/login">登录</router-link>
-        <router-link to="/create-project">创建项目</router-link>
-        <router-link to="/projects">查看项目</router-link>
-        <router-link to="/users">查看用户</router-link>
-        <router-link :to="`/user/${username}`">我的资料</router-link>
-        <router-link to="/edit-profile">编辑资料</router-link>
-        <button class="logout" @click="logout">退出登录</button>
+        <!-- 仅在未登录时显示 注册 和 登录 -->
+        <router-link v-if="!isLoggedIn" to="/register">注册</router-link>
+        <router-link v-if="!isLoggedIn" to="/login">登录</router-link>
+
+        <!-- 仅在已登录时显示其他导航项 -->
+        <router-link v-if="isLoggedIn" to="/">主页</router-link>
+        <router-link v-if="isLoggedIn" to="/create-project">创建项目</router-link>
+        <router-link v-if="isLoggedIn" to="/projects">查看项目</router-link>
+        <router-link v-if="isLoggedIn" to="/users">查看用户</router-link>
+        <router-link v-if="isLoggedIn" :to="`/user/${username}`">我的资料</router-link>
+        <router-link v-if="isLoggedIn" to="/edit-profile">编辑资料</router-link>
+        <button v-if="isLoggedIn" class="logout" @click="logout">退出登录</button>
       </nav>
     </header>
     <main>
@@ -26,7 +29,8 @@ import axios from 'axios';
 export default {
   data() {
     return {
-      username: ''  // 用户名初始化为空
+      username: '', // 用户名初始化为空
+      isLoggedIn: false // 登录状态
     };
   },
   created() {
@@ -38,7 +42,8 @@ export default {
         }
       })
       .then(response => {
-        this.username = response.data.username;  // 获取并设置用户名
+        this.username = response.data.username; // 获取并设置用户名
+        this.isLoggedIn = true; // 设置为已登录状态
       })
       .catch(error => {
         console.error('获取用户资料失败:', error);
@@ -46,20 +51,23 @@ export default {
       });
     } else {
       console.error('JWT Token 不存在，请先登录。');
+      this.isLoggedIn = false;
       this.$router.push('/login'); // 未找到 Token 时自动重定向到登录页
     }
   },
   methods: {
     handleAuthError() {
       localStorage.removeItem('token'); // 清除无效的 Token
+      this.isLoggedIn = false; // 设置为未登录状态
       this.$router.push('/login'); // 重定向到登录页面
     },
     logout() {
       localStorage.removeItem('token');
       this.username = ''; // 清空用户名
+      this.isLoggedIn = false; // 设置为未登录状态
       this.$router.push('/login'); // 跳转到登录页
     }
-  },
+  }
 };
 </script>
 
