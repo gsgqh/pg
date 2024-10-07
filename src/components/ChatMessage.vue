@@ -3,13 +3,20 @@
     <h2 class="chat-header">与 {{ recipientNickname }} 聊天</h2>
     <div class="messages" ref="messages">
       <div
-        v-for="message in chatHistory"
+        v-for="(message, index) in chatHistory"
         :key="message.id"
-        :class="{'message': true, 'sent': message.sender_nickname === senderNickname, 'received': message.sender_nickname !== senderNickname}">
+        :class="{
+          'message': true,
+          'sent': message.sender_nickname === senderNickname,
+          'received': message.sender_nickname !== senderNickname
+        }"
+      >
+        <!-- 如果消息与上一条消息的时间差超过5分钟，则显示时间戳 -->
+        <div v-if="shouldShowTimestamp(index)" class="timestamp">
+          {{ formatDate(message.timestamp) }}
+        </div>
         <div class="message-content">
-          <!-- 对方的消息不显示昵称 -->
           <p>{{ message.message }}</p>
-          <span class="message-timestamp">{{ formatDate(message.timestamp) }}</span>
         </div>
       </div>
     </div>
@@ -17,10 +24,10 @@
       <input
         v-model="newMessage"
         @keyup.enter="sendMessage"
-        placeholder="Type your message..."
+        placeholder="输入消息..."
         class="input-field"
       />
-      <button @click="sendMessage" class="send-button">Send</button>
+      <button @click="sendMessage" class="send-button">发送</button>
     </div>
   </div>
 </template>
@@ -33,7 +40,7 @@ import { jwtDecode } from 'jwt-decode';
 export default {
   data() {
     return {
-      recipientId: this.$route.params.recipientId, // 从路由获取接收者ID
+      recipientId: this.$route.params.recipientId,
       recipientNickname: '',
       senderNickname: '',
       chatHistory: [],
@@ -57,27 +64,23 @@ export default {
         this.recipientNickname = response.data.recipient_nickname;
         this.senderNickname = response.data.sender_nickname;
         this.chatHistory = response.data.chat_history;
-        this.scrollToBottom(); // 初始化时滚动到底部
+        this.scrollToBottom();
       } catch (error) {
         console.error('Error fetching chat history:', error);
       }
     },
     initializeSocket() {
-      this.socket = io('http://localhost:5000'); // 连接到后端 Socket.IO 服务器
-
+      this.socket = io('http://localhost:5000');
       this.socket.on('receive_message', (data) => {
         this.chatHistory.push(data);
-        this.scrollToBottom(); // 新消息到达后滚动到底部
+        this.scrollToBottom();
       });
-
       this.socket.on('connect_error', (error) => {
         console.error('Socket connection error:', error);
       });
     },
     sendMessage() {
-      if (this.newMessage.trim() === '') {
-        return; // 防止发送空消息
-      }
+      if (this.newMessage.trim() === '') return;
 
       const token = localStorage.getItem('token');
       const decodedToken = jwtDecode(token);
@@ -89,7 +92,6 @@ export default {
         sender_id: currentUsername
       };
 
-      // 发送消息到后端
       this.socket.emit('send_message', messageData, (response) => {
         if (response.success) {
           console.log('Message sent successfully');
@@ -98,7 +100,6 @@ export default {
         }
       });
 
-      // 直接将新消息添加到聊天记录
       this.chatHistory.push({
         id: Date.now(),
         message: this.newMessage,
@@ -106,31 +107,36 @@ export default {
         timestamp: new Date()
       });
 
-      // 清空输入框
       this.newMessage = '';
-
-      // 滚动到底部以显示新发送的消息
       this.scrollToBottom();
+    },
+    shouldShowTimestamp(index) {
+      if (index === 0) return true;
+      const currentMessage = this.chatHistory[index];
+      const previousMessage = this.chatHistory[index - 1];
+      const currentTime = new Date(currentMessage.timestamp);
+      const previousTime = new Date(previousMessage.timestamp);
+      const timeDifference = (currentTime - previousTime) / 60000; // 时间差（分钟）
+      return timeDifference > 5;
     },
     formatDate(timestamp) {
       const date = new Date(timestamp);
-      return date.toLocaleDateString() + ' ' + date.toLocaleTimeString(); // 格式化时间戳
+      return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
     },
     scrollToBottom() {
       this.$nextTick(() => {
         const messagesDiv = this.$refs.messages;
-        messagesDiv.scrollTop = messagesDiv.scrollHeight; // 滚动到底部
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
       });
     }
   },
   beforeUnmount() {
     if (this.socket) {
-      this.socket.disconnect(); // 组件销毁时断开连接
+      this.socket.disconnect();
     }
   }
 };
 </script>
-
 
 <style scoped>
 #chat {
@@ -163,17 +169,24 @@ export default {
   padding: 10px;
   background-color: #fff;
   border-radius: 5px;
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .message {
   display: flex;
+  flex-direction: column;
   margin-bottom: 10px;
 }
 
+.timestamp {
+  text-align: center;
+  font-size: 0.75em;
+  color: #888;
+  margin-bottom: 5px;
+}
+
 .message-content {
-  padding: 10px 15px;
-  border-radius: 10px;
+  padding: 5px 6px;
+  border-radius: 5px;
   background-color: #e6e6e6;
   word-wrap: break-word;
   max-width: 75%;
@@ -190,14 +203,6 @@ export default {
 .received .message-content {
   background-color: #f0f0f0;
   color: #333;
-}
-
-.message-timestamp {
-  display: block;
-  font-size: 0.8em;
-  color: #999;
-  margin-top: 5px;
-  text-align: right;
 }
 
 .message-input {
@@ -217,7 +222,6 @@ export default {
   border: 1px solid #ddd;
   border-radius: 20px;
   font-size: 14px;
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .input-field:focus {
