@@ -12,6 +12,31 @@
         placeholder="项目内容"
         class="input-field textarea-field"
       ></textarea>
+
+      <select v-model="projectCategory" class="input-field">
+        <option disabled value="">请选择项目类别</option>
+        <option>项目</option>
+        <option>竞赛</option>
+        <option>科研</option>
+        <option>学习</option>
+      </select>
+
+      <select v-model="majorType" class="input-field">
+        <option disabled value="">请选择专业类型</option>
+        <option>哲学</option>
+        <option>经济学</option>
+        <option>法学</option>
+        <option>教育学</option>
+        <option>文学</option>
+        <option>历史学</option>
+        <option>理学</option>
+        <option>工学</option>
+        <option>农学</option>
+        <option>医学</option>
+        <option>管理学</option>
+        <option>艺术学</option>
+      </select>
+
       <button @click="createProject" class="create-button">创建项目</button>
 
       <!-- 显示消息 -->
@@ -30,8 +55,10 @@ export default {
     return {
       projectTitle: '',
       projectContent: '',
-      successMessage: '',  // 用于存储成功消息
-      errorMessage: ''     // 用于存储错误消息
+      projectCategory: '',  // 新增项目类别
+      majorType: '',        // 新增专业类型
+      successMessage: '',
+      errorMessage: ''
     };
   },
   methods: {
@@ -41,7 +68,9 @@ export default {
 
       axios.post('http://localhost:5000/create-project', {
         title: this.projectTitle,
-        content: this.projectContent
+        content: this.projectContent,
+        category: this.projectCategory,  // 添加项目类别
+        major_type: this.majorType        // 添加专业类型
       }, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       })
@@ -68,6 +97,7 @@ export default {
 </script>
 
 <style scoped>
+/* 样式保持不变 */
 .create-project-container {
   max-width: 600px;
   margin: 50px auto;

@@ -60,8 +60,8 @@ def create_project():
     data = request.get_json()  # 获取请求体中的JSON数据
 
     # 检查标题和内容是否为空
-    if not data.get('title') or not data.get('content'):
-        return jsonify(message="Title or content cannot be empty", success = False), 200  # 返回200状态码
+    if not data.get('title') or not data.get('content') or not data.get('major_type') or not data.get('category'):
+        return jsonify(message="Title, content, major_type, or category cannot be empty", success=False), 200  # 返回200状态码
 
     # 获取当前用户的身份信息
     current_user_id = get_jwt_identity()
@@ -72,7 +72,13 @@ def create_project():
         return jsonify(message="User not found",success = False), 200  # 如果找不到用户，返回200
 
     # 创建新项目对象，保存用户名
-    new_project = Project(title=data['title'], content=data['content'], username=user.username)
+    new_project = Project(
+        title=data['title'], 
+        content=data['content'], 
+        username=user.username,
+        major_type=data['major_type'],
+        category=data['category']
+    )
     
     # 将新项目添加到数据库会话
     db.session.add(new_project)
@@ -101,7 +107,9 @@ def get_projects():
             'title': project.title,
             'content': project.content,
             'username': project.username,
-            'nickname': nickname  # 添加 nickname 字段
+            'nickname': nickname,  # 添加 nickname 字段
+            'major_type': project.major_type,  # 添加专业类型
+            'category': project.category  # 添加项目类别
         })
 
     # 返回项目列表的 JSON 格式
@@ -199,3 +207,50 @@ def edit_user_profile():
         return jsonify({'message': 'Profile updated successfully'})
     else:
         return jsonify({'error': 'User not found'}), 404
+
+# 获取带筛选条件的项目列表
+@bp.route('/projects/search', methods=['GET'])
+def search_projects():
+    # 获取查询参数
+    major_type = request.args.get('major_type')
+    category = request.args.get('category')
+    keyword = request.args.get('keyword')  # 新增搜索关键字参数
+
+    # 构建查询条件
+    query = Project.query
+
+    if major_type:
+        query = query.filter_by(major_type=major_type)
+    
+    if category:
+        query = query.filter_by(category=category)
+    
+    if keyword:  # 如果有搜索关键字，则进行模糊查询
+        query = query.filter(
+            (Project.title.ilike(f'%{keyword}%')) | 
+            (Project.content.ilike(f'%{keyword}%'))
+        )
+
+    # 获取符合条件的所有项目
+    projects = query.all()
+
+    # 构建响应数据
+    project_list = []
+    for project in projects:
+        # 通过 username 查询对应的 User 表中的 nickname
+        user = User.query.filter_by(username=project.username).first()
+        nickname = user.nickname if user else None  # 如果找不到用户，nickname 为 None
+
+        # 构建项目和用户的 JSON 数据
+        project_list.append({
+            'id': project.id,
+            'title': project.title,
+            'content': project.content,
+            'username': project.username,
+            'nickname': nickname,
+            'major_type': project.major_type,  # 添加专业类型
+            'category': project.category  # 添加项目类别
+        })
+
+    # 返回项目列表的 JSON 格式
+    return jsonify(project_list)

@@ -28,6 +28,16 @@ class Project(db.Model):
     title = db.Column(db.String(200), nullable=False)  # 项目标题，不能为空
     content = db.Column(db.Text, nullable=False)  # 项目内容，不能为空
     username = db.Column(db.String(80), nullable=False)  # 当前创建项目的用户的用户名，不能为空
+    major_type = db.Column(db.String(20))  # 专业类型
+    category = db.Column(db.String(10))  # 项目类别
+
+    @staticmethod
+    def search(keyword):
+        # 使用 SQLAlchemy 进行模糊查询
+        return Project.query.filter(
+            (Project.title.ilike(f'%{keyword}%')) | 
+            (Project.content.ilike(f'%{keyword}%'))
+        ).all()
 
 # 定义会话模型，继承自SQLAlchemy的Model类
 class ChatMessage(db.Model):
