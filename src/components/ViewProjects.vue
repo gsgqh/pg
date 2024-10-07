@@ -270,6 +270,7 @@ h2 {
   border-radius: 8px;
   margin-bottom: 20px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  position: relative; /* 为创建者信息定位做准备 */
 }
 
 .project-title {
@@ -286,43 +287,54 @@ h2 {
 .button-container {
   display: flex;
   gap: 10px;
-  margin-bottom: 10px;
+  margin-top: 10px; /* 与其他内容保持间距 */
 }
 
 .project-type,
 .professional-type {
-  padding: 5px 10px;
-  border-radius: 5px;
-  background-color: #ecf0f1;
+  padding: 8px 15px; /* 增加标签大小 */
+  border-radius: 8px;
+  background-color: rgba(236, 240, 241, 0.8); /* 半透明背景色 */
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: background-color 0.3s, box-shadow 0.3s;
+  font-size: 14px; /* 标签字体稍大 */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .project-type:hover,
 .professional-type:hover {
-  background-color: #bdc3c7;
+  background-color: rgba(189, 195, 199, 0.8); /* 悬停时背景稍深 */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* 增加阴影 */
 }
 
 .project-created-by {
   font-size: 14px;
   color: #7f8c8d;
+  position: absolute;
+  top: 10px;
+  left: 20px;
 }
 
 .favorite-button {
-  padding: 10px 15px;
+  padding: 5px 10px; /* 缩小按钮 */
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  background-color: #e67e22;
-  color: #fff;
-  transition: background-color 0.3s;
+  background-color: #b2bec3; /* 柔和的灰色 */
+  color: #2d3436;
+  transition: background-color 0.3s, transform 0.2s ease;
+  font-size: 14px; /* 字体稍小 */
+  margin-top: 10px; /* 调整按钮与其他内容的间距 */
 }
 
 .favorite-button:hover {
-  background-color: #d35400;
+  background-color: #636e72;
+  transform: translateY(-2px);
 }
 
 .favorited {
-  background-color: #c0392b; /* 收藏状态下的背景颜色 */
+  background-color: #d63031; /* 收藏状态下的背景颜色 */
+  color: #fff; /* 收藏状态下文字颜色 */
 }
 </style>
+
