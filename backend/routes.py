@@ -321,3 +321,33 @@ def get_favorite_projects(user_id):
         })
 
     return jsonify(favorite_projects)
+
+# 获取当前用户的项目
+@bp.route('/projects/my-projects', methods=['GET'])
+@jwt_required()  # 确保用户登录
+def my_projects():
+    # 获取当前用户发布的所有项目
+    current_user_id = get_jwt_identity()
+    user = User.query.filter_by(id=current_user_id).first()
+    projects = Project.query.filter_by(username=user.username).all()
+    return jsonify([{
+        'id': project.id,
+        'title': project.title,
+        'content': project.content,
+        'major_type': project.major_type,
+        'category': project.category
+    } for project in projects])
+
+# 删除项目接口
+@bp.route('/delete-project/<int:project_id>', methods=['DELETE'])
+@jwt_required()  # 确保用户登录
+def delete_project(project_id):
+    # 查询项目并检查是否存在
+    current_user_id = get_jwt_identity()
+    user = User.query.filter_by(id=current_user_id).first()
+    project = Project.query.get(project_id)
+    if project and project.username == user.username:
+        db.session.delete(project)
+        db.session.commit()
+        return jsonify({'message': '项目删除成功'}), 200
+    return jsonify({'message': '项目未找到或没有权限删除'}), 404

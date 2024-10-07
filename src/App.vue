@@ -16,6 +16,7 @@
         <router-link v-if="isLoggedIn" to="/edit-profile">编辑资料</router-link>
         <router-link v-if="isLoggedIn" to="/recent-chats">聊天</router-link>
         <router-link v-if="isLoggedIn" to="/favorites" class="favorites-link">我的收藏</router-link>
+        <router-link v-if="isLoggedIn" to="/projects/my-projects" class="favorites-link">项目管理</router-link>
         <button v-if="isLoggedIn" class="logout" @click="logout">退出登录</button>
       </nav>
     </header>
