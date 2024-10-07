@@ -11,6 +11,7 @@
         <router-link to="/users">查看用户</router-link>
         <router-link :to="`/user/${username}`">我的资料</router-link>
         <router-link to="/edit-profile">编辑资料</router-link>
+        <router-link to="/recent-chats">聊天</router-link>
         <button class="logout" @click="logout">退出登录</button>
       </nav>
     </header>

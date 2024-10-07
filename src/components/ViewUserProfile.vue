@@ -56,7 +56,7 @@ export default {
         });
 
         this.user = response.data;  // 成功获取后设置用户信息
-        this.isCurrentUser = this.user.username === currentUsername;  // 判断是否为当前登录用户
+        this.isCurrentUser = this.user.id === currentUsername;  // 判断是否为当前登录用户
       } catch (error) {
         console.error('获取用户信息失败:', error);
         alert('获取用户信息失败，请检查是否已登录');

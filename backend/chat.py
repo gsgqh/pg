@@ -3,6 +3,7 @@ from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identi
 from model import db, User, Project, ChatMessage
 from flask_socketio import SocketIO
 from sqlalchemy.orm import joinedload
+from sqlalchemy import or_, and_, func
 
 chat = Blueprint('chat', __name__)
 
@@ -93,4 +94,55 @@ def handle_send_message(data):
 
     # 确认消息发送成功
     return {'success': True}
+
+
+@chat.route('/recent-chats', methods=['GET'])
+def get_recent_chats():
+    user_id = request.args.get('user_id')
+
+    # 子查询：获取每个对话中最新的一条消息
+    latest_messages_subquery = (
+        db.session.query(
+            func.max(ChatMessage.timestamp).label('latest_timestamp'),
+            func.least(ChatMessage.sender_id, ChatMessage.recipient_id).label('user1'),
+            func.greatest(ChatMessage.sender_id, ChatMessage.recipient_id).label('user2')
+        )
+        .filter(or_(
+            ChatMessage.sender_id == user_id, 
+            ChatMessage.recipient_id == user_id
+        ))
+        .group_by(func.least(ChatMessage.sender_id, ChatMessage.recipient_id),
+                  func.greatest(ChatMessage.sender_id, ChatMessage.recipient_id))
+        .subquery()
+    )
+
+    # 查询每个对话的最新聊天记录
+    recent_chats = (
+        db.session.query(ChatMessage)
+        .join(latest_messages_subquery, and_(
+            ChatMessage.timestamp == latest_messages_subquery.c.latest_timestamp,
+            func.least(ChatMessage.sender_id, ChatMessage.recipient_id) == latest_messages_subquery.c.user1,
+            func.greatest(ChatMessage.sender_id, ChatMessage.recipient_id) == latest_messages_subquery.c.user2
+        ))
+        .order_by(ChatMessage.timestamp.desc())
+        .all()
+    )
+
+    # 格式化输出
+    result = []
+    for message in recent_chats:
+        # 确定对方用户的 ID
+        chat_with_user_id = message.sender_id if message.sender_id != int(user_id) else message.recipient_id
+        chat_with_user = User.query.get(chat_with_user_id)
+        
+        result.append({
+            'user_id': user_id,  # 当前用户的 ID
+            'chat_with_id': chat_with_user.id,  # 对方用户的 ID
+            'chat_with': chat_with_user.nickname,  # 使用对方用户的昵称
+            'message': message.message,
+            'timestamp': message.timestamp
+        })
+
+    return jsonify(result)
+
     
