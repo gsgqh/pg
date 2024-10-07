@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity
-from model import db, User, Project
+from model import db, User, Project, Favorite
 
 # 创建一个Blueprint用于组织路由
 bp = Blueprint('api', __name__)
@@ -254,3 +254,70 @@ def search_projects():
 
     # 返回项目列表的 JSON 格式
     return jsonify(project_list)
+
+# 收藏项目接口
+@bp.route('/projects/favorite', methods=['POST'])
+def favorite_project():
+    data = request.get_json()
+    user_id = data.get('user_id')
+    project_id = data.get('project_id')
+
+    # 检查用户和项目是否存在
+    user = User.query.get(user_id)
+    project = Project.query.get(project_id)
+
+    if not user or not project:
+        return jsonify({'error': 'User or project not found'}), 404
+
+    # 检查用户是否已经收藏了该项目
+    favorite = Favorite.query.filter_by(user_id=user_id, project_id=project_id).first()
+    if favorite:
+        return jsonify({'message': 'Project already favorited'}), 400
+
+    # 添加收藏
+    new_favorite = Favorite(user_id=user_id, project_id=project_id)
+    db.session.add(new_favorite)
+    db.session.commit()
+
+    return jsonify({'message': 'Project favorited successfully'})
+
+# 取消收藏项目接口
+@bp.route('/projects/unfavorite', methods=['POST'])
+def unfavorite_project():
+    data = request.get_json()
+    user_id = data.get('user_id')
+    project_id = data.get('project_id')
+
+    # 检查用户和项目是否存在
+    favorite = Favorite.query.filter_by(user_id=user_id, project_id=project_id).first()
+    if not favorite:
+        return jsonify({'error': 'Favorite not found'}), 404
+
+    # 删除收藏
+    db.session.delete(favorite)
+    db.session.commit()
+
+    return jsonify({'message': 'Project unfavorited successfully'})
+
+# 获取用户收藏的项目
+@bp.route('/users/<int:user_id>/favorites', methods=['GET'])
+def get_favorite_projects(user_id):
+    favorites = Favorite.query.filter_by(user_id=user_id).all()
+    favorite_projects = []
+
+    for favorite in favorites:
+        user = User.query.filter_by(username=favorite.project.username).first()
+        nickname = user.nickname if user else None  # 如果找不到用户，nickname 为 None
+
+        project = Project.query.get(favorite.project_id)
+        favorite_projects.append({
+            'id': project.id,
+            'title': project.title,
+            'content': project.content,
+            'username': project.username,
+            'major_type': project.major_type,
+            'nickname':nickname,
+            'category': project.category,
+        })
+
+    return jsonify(favorite_projects)

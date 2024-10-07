@@ -95,7 +95,7 @@ def handle_send_message(data):
     # 确认消息发送成功
     return {'success': True}
 
-
+#最近聊天
 @chat.route('/recent-chats', methods=['GET'])
 def get_recent_chats():
     user_id = request.args.get('user_id')
