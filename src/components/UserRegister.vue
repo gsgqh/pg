@@ -8,6 +8,9 @@
       <input v-model="password" type="password" placeholder="密码" class="input-field" />
     </div>
     <div class="input-group">
+      <input v-model="confirmPassword" type="password" placeholder="确认密码" class="input-field" />
+    </div>
+    <div class="input-group">
       <input v-model="nickname" placeholder="昵称" class="input-field" />
     </div>
     <button @click="register" class="register-button">注册</button>
@@ -23,28 +26,36 @@ export default {
     return {
       username: '',
       password: '',
-      nickname: '',  // 用于存储昵称
-      errorMessage: ''  // 用于存储错误消息
+      confirmPassword: '', // 新增确认密码字段
+      nickname: '',
+      errorMessage: ''
     };
   },
   methods: {
     register() {
-      this.errorMessage = '';  // 清空之前的错误消息
+      this.errorMessage = ''; // 清空之前的错误消息
+
+      // 检查密码和确认密码是否一致
+      if (this.password !== this.confirmPassword) {
+        this.errorMessage = '密码和确认密码不一致。';
+        return;
+      }
+
       axios.post('http://localhost:5000/register', {
         username: this.username,
         password: this.password,
-        nickname: this.nickname  // 传递昵称到后端
+        nickname: this.nickname
       })
       .then(response => {
         if (response.data.success) {
-          this.$router.push('/login');  // 注册成功后跳转到登录页面
+          this.$router.push('/login'); // 注册成功后跳转到登录页面
         } else {
-          this.errorMessage = response.data.message;  // 设置错误消息
+          this.errorMessage = response.data.message; // 显示服务器返回的错误消息
         }
       })
       .catch(error => {
         console.error('Error during registration:', error);
-        this.errorMessage = '注册过程中发生错误。';  // 设置通用错误消息
+        this.errorMessage = '注册过程中发生错误。'; // 显示通用错误消息
       });
     }
   }
@@ -108,3 +119,4 @@ h2 {
   margin-top: 20px;
 }
 </style>
+
