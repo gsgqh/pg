@@ -38,6 +38,45 @@ class Project(db.Model):
             (Project.title.ilike(f'%{keyword}%')) | 
             (Project.content.ilike(f'%{keyword}%'))
         ).all()
+    
+    def participate(self, user_id):
+        # 检查用户是否已参与项目
+        existing_participation = Participation.query.filter_by(
+            project_id=self.id,
+            user_id=user_id
+        ).first()
+
+        if existing_participation:
+            return "您已申请参与该项目，状态为: " + existing_participation.status
+
+        # 创建新的参与记录
+        new_participation = Participation(
+            user_id=user_id,
+            project_id=self.id,
+            status=ParticipationStatus.PENDING  # 初始状态为待审核
+        )
+        db.session.add(new_participation)
+        db.session.commit()
+        return "参与申请已提交，等待审核。"
+
+    @staticmethod
+    def review_participation(participation_id, action):
+        participation = Participation.query.filter_by(id=participation_id).first()
+        if not participation:
+            return "未找到该参与申请。"
+        
+        if action == 'approve':
+            participation.status = ParticipationStatus.PARTICIPATED
+            message = "申请已通过。"
+        elif action == 'reject':
+            db.session.delete(participation)  # 删除该参与记录
+            participation.status = ParticipationStatus.NOT_PARTICIPATED
+            message = "申请已拒绝。"
+        else:
+            return "无效的操作。"
+        
+        db.session.commit()
+        return message
 
 # 定义会话模型，继承自SQLAlchemy的Model类
 class ChatMessage(db.Model):
@@ -52,6 +91,7 @@ class ChatMessage(db.Model):
     sender = relationship('User', foreign_keys=[sender_id])
     recipient = relationship('User', foreign_keys=[recipient_id])
 
+# 定义收藏模型，继承自SQLAlchemy的Model类
 class Favorite(db.Model):
     __tablename__ = 'favorites'
 
@@ -61,3 +101,21 @@ class Favorite(db.Model):
 
     user = db.relationship('User', backref='favorites')
     project = db.relationship('Project', backref='favorites')
+
+# 定义参与模型，继承自SQLAlchemy的Model类
+class Participation(db.Model):
+    __tablename__ = 'participations'
+
+    id = db.Column(db.Integer, primary_key=True)  # 参与记录的ID，主键
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)  # 外键，指向用户ID
+    project_id = db.Column(db.Integer, db.ForeignKey('projects.id'), nullable=False)  # 外键，指向项目ID
+    status = db.Column(db.String(20), nullable=False, default='未参与')  # 参与状态，默认是未参与
+
+    user = db.relationship('User', backref='participations')  # 用户与参与记录的一对多关系
+    project = db.relationship('Project', backref='participations')  # 项目与参与记录的一对多关系
+
+# 定义参与状态常量
+class ParticipationStatus:
+    NOT_PARTICIPATED = '未参与'
+    PENDING = '待审核'  
+    PARTICIPATED = '已参与' 

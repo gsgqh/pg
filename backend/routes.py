@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity
-from model import db, User, Project, Favorite
+from model import db, User, Project, Favorite, Participation
 
 # 创建一个Blueprint用于组织路由
 bp = Blueprint('api', __name__)
@@ -322,7 +322,6 @@ def get_favorite_projects(user_id):
 
     return jsonify(favorite_projects)
 
-# 获取当前用户的项目
 @bp.route('/projects/my-projects', methods=['GET'])
 @jwt_required()  # 确保用户登录
 def my_projects():
@@ -330,12 +329,20 @@ def my_projects():
     current_user_id = get_jwt_identity()
     user = User.query.filter_by(id=current_user_id).first()
     projects = Project.query.filter_by(username=user.username).all()
+
+    # 返回项目及其参与者信息
     return jsonify([{
         'id': project.id,
         'title': project.title,
         'content': project.content,
         'major_type': project.major_type,
-        'category': project.category
+        'category': project.category,
+        'participants': [{
+            'id': participation.id,
+            'user_id': participation.user_id,
+            'username': participation.user.username,
+            'status': participation.status
+        } for participation in project.participations]  # 返回参与者信息
     } for project in projects])
 
 # 删除项目接口
@@ -351,3 +358,30 @@ def delete_project(project_id):
         db.session.commit()
         return jsonify({'message': '项目删除成功'}), 200
     return jsonify({'message': '项目未找到或没有权限删除'}), 404
+
+# 参与项目接口
+@bp.route('/projects/<int:project_id>/participate', methods=['POST'])
+@jwt_required()  # 确保用户登录
+def participate_project(project_id):
+    current_user_id = get_jwt_identity()
+    user = User.query.filter_by(id=current_user_id).first()
+    user_id =user.id  
+    username = user.username
+    project = Project.query.get(project_id)
+
+    if not project:
+        return jsonify({"message": "项目不存在"}), 404
+
+    if project.username == username:  # 确保用户不是项目创建者
+        return jsonify({"message": "您不能参与自己创建的项目"}), 400
+
+    message = project.participate(user_id)
+    return jsonify({"message": message}), 200
+
+
+@bp.route('/participation/review/<int:participation_id>', methods=['POST'])
+@jwt_required()
+def review_participation(participation_id):
+    action = request.json.get('action')  # 获取请求中的action参数
+    result = Project.review_participation(participation_id, action)
+    return jsonify({"message": result})

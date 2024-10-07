@@ -2,7 +2,6 @@
   <div class="projects-container">
     <h2>项目列表</h2>
 
-    <!-- 筛选表单 -->
     <div class="filter-form">
       <select v-model="selectedCategory" class="select-field">
         <option value="">选择项目类别</option>
@@ -29,7 +28,6 @@
       </select>
     </div>
 
-    <!-- 搜索表单 -->
     <div class="search-form">
       <input
         type="text"
@@ -45,7 +43,6 @@
         <h3 class="project-title">{{ project.title }}</h3>
         <p class="project-content">{{ project.content }}</p>
 
-        <!-- 项目类别和专业类型按钮 -->
         <div class="button-container">
           <div 
             class="project-type" 
@@ -68,7 +65,6 @@
           </router-link>
         </p>
 
-        <!-- 收藏按钮 -->
         <button 
           @click="toggleFavorite(project)" 
           class="favorite-button" 
@@ -76,6 +72,14 @@
         >
           {{ project.isFavorited ? '取消收藏' : '收藏' }}
         </button>
+
+        <button 
+          @click="joinProject(project.id)" 
+          class="join-button"
+        >
+          加入项目
+        </button>
+        <p v-if="message" class="message">{{ message }}</p> <!-- 添加这一行 -->
       </li>
     </ul>
   </div>
@@ -93,16 +97,15 @@ export default {
       selectedCategory: '',
       selectedMajorType: '',
       searchKeyword: '',
-      userId: null  // 初始化为 null
+      userId: null,  // 初始化为 null
+      message: ''    // 添加消息状态
     };
   },
   methods: {
     fetchProjects() {
       axios.get('http://localhost:5000/projects').then(response => {
-        // 获取用户的收藏项目
         return axios.get(`http://localhost:5000/users/${this.userId}/favorites`).then(favoritesResponse => {
           const favoriteIds = new Set(favoritesResponse.data.map(fav => fav.id));
-
           this.projects = response.data.map(project => ({
             ...project,
             isFavorited: favoriteIds.has(project.id)  // 根据用户的收藏状态设置 isFavorited
@@ -121,11 +124,8 @@ export default {
 
       axios.get('http://localhost:5000/projects/search', { params })
         .then(response => {
-          // 获取用户的收藏项目
           return axios.get(`http://localhost:5000/users/${this.userId}/favorites`).then(favoritesResponse => {
             const favoriteIds = new Set(favoritesResponse.data.map(fav => fav.id));
-
-            // 更新项目列表，并根据收藏状态设置 isFavorited
             this.projects = response.data.map(project => ({
               ...project,
               isFavorited: favoriteIds.has(project.id) // 根据用户的收藏状态设置 isFavorited
@@ -168,6 +168,20 @@ export default {
           console.error("收藏项目时出错: ", error);
         });
       }
+    },
+    joinProject(projectId) {
+      axios.post(`http://localhost:5000/projects/${projectId}/participate`, {}, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}` // 使用 JWT 进行认证
+        }
+      })
+      .then(response => {
+        this.message = response.data.message; // 显示成功消息
+      })
+      .catch(error => {
+        console.error("加入项目时出错: ", error);
+        this.message = error.response ? error.response.data.message : "网络错误"; // 显示错误消息
+      });
     }
   },
   watch: {
@@ -175,7 +189,6 @@ export default {
     selectedMajorType: 'searchProjects'   // 当选中的专业类型改变时调用搜索
   },
   mounted() {
-    // 解码 JWT 获取用户ID
     const token = localStorage.getItem('token');
     if (token) {
       const decodedToken = jwtDecode(token);
@@ -336,5 +349,12 @@ h2 {
   background-color: #d63031; /* 收藏状态下的背景颜色 */
   color: #fff; /* 收藏状态下文字颜色 */
 }
+
+.message {
+  margin-top: 10px;
+  color: #2c3e50; /* 或其他你喜欢的颜色 */
+  font-weight: bold; /* 或者其他样式 */
+}
 </style>
+
 

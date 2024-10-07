@@ -5,6 +5,17 @@
       <li v-for="project in projects" :key="project.id" class="project-card">
         <h2 class="project-title">{{ project.title }}</h2>
         <p class="project-content">{{ project.content }}</p>
+        <div class="participants">
+          <h3>参与者:</h3>
+          <ul>
+            <li v-for="participant in project.participants" :key="participant.id">
+              用户名: <router-link :to="'/user/' + participant.username">{{ participant.username }}</router-link> - 状态: {{ participant.status }}
+              <button @click="reviewParticipation(participant.id, 'approve')">通过</button>
+              <button @click="reviewParticipation(participant.id, 'reject')">拒绝</button>
+            </li>
+          </ul>
+        </div>
+        
         <button @click="deleteProject(project.id)" class="delete-button">删除项目</button>
       </li>
     </ul>
@@ -26,7 +37,7 @@ export default {
   methods: {
     async fetchProjects() {
       try {
-        const response = await axios.get('http://localhost:5000/projects/my-projects',{
+        const response = await axios.get('http://localhost:5000/projects/my-projects', {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}` // 使用 JWT 进行认证
           }
@@ -39,13 +50,11 @@ export default {
     async deleteProject(projectId) {
       if (confirm('确定要删除该项目吗？')) {
         try {
-          const response = await axios.delete(`http://localhost:5000/delete-project/${projectId}`,
-            {
-              headers: {
-                Authorization: `Bearer ${localStorage.getItem('token')}` // 使用 JWT 进行认证
-              }
+          const response = await axios.delete(`http://localhost:5000/delete-project/${projectId}`, {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('token')}` // 使用 JWT 进行认证
             }
-          );
+          });
           if (response.status === 200) {
             this.fetchProjects(); // Refresh project list
           } else {
@@ -55,6 +64,29 @@ export default {
           alert('删除项目失败！');
           console.error('删除项目失败:', error); // Logging error
         }
+      }
+    },
+    async reviewParticipation(participationId, action) {
+      try {
+        const response = await axios.post(`http://localhost:5000/participation/review/${participationId}`, 
+        { 
+          action: action  // 只发送 action
+        }, 
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`  // 使用 JWT 进行认证
+          }
+        });
+    
+        if (response.status === 200) {
+          alert(response.data.message);  // 提示操作结果
+          this.fetchProjects();  // 刷新项目列表
+        } else {
+          alert('审核操作失败！');
+        }
+      } catch (error) {
+        alert('审核操作失败！');
+        console.error('审核操作失败:', error);  // 打印错误日志
       }
     }
   }
@@ -103,6 +135,10 @@ export default {
   font-size: 16px;
   color: #34495e;
   margin-bottom: 10px;
+}
+
+.participants {
+  margin-top: 10px;
 }
 
 .delete-button {
