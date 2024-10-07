@@ -15,14 +15,17 @@
       <p><strong>兴趣:</strong> {{ user.interests || '未提供兴趣' }}</p>
     </div>
     <div class="profile-actions">
-      <!-- 如果是当前用户，则显示“编辑信息”按钮 -->
+      <!-- 编辑信息按钮保留在这里 -->
       <router-link v-if="isCurrentUser" to="/edit-profile" class="btn-edit">编辑信息</router-link>
-      <!-- 否则显示“聊天”按钮 -->
-      <button v-else @click="startChat" class="btn-chat">聊天</button>
+    </div>
+    <!-- 聊天按钮单独放置在信息卡片底部 -->
+    <div v-if="!isCurrentUser" class="chat-action">
+      <button @click="startChat" class="btn-chat">聊天</button>
     </div>
   </div>
   <p v-else>加载中...</p> <!-- 在 user 数据为 null 时显示加载信息 -->
 </template>
+
 
 <script>
 // 正确导入 jwt-decode 库
@@ -56,7 +59,7 @@ export default {
         });
 
         this.user = response.data;  // 成功获取后设置用户信息
-        this.isCurrentUser = this.user.username === currentUsername;  // 判断是否为当前登录用户
+        this.isCurrentUser = this.user.id === currentUsername;  // 判断是否为当前登录用户
       } catch (error) {
         console.error('获取用户信息失败:', error);
         alert('获取用户信息失败，请检查是否已登录');
@@ -100,6 +103,10 @@ export default {
   margin: 5px 0;
 }
 .profile-actions {
+  margin-top: 20px;
+  text-align: center;
+}
+.chat-action {
   margin-top: 20px;
   text-align: center;
 }

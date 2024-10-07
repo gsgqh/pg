@@ -9,6 +9,12 @@
     </div>
     <button @click="login" class="login-button">登录</button>
     <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p> <!-- 显示错误消息 -->
+    
+    <!-- 注册按钮 -->
+    <div class="register-link">
+      <p>还没有账号？</p>
+      <button @click="goToRegister" class="register-button">注册</button>
+    </div>
   </div>
 </template>
 
@@ -48,6 +54,9 @@ export default {
           this.errorMessage = '登录过程中发生错误。';  // 通用错误消息
         }
       });
+    },
+    goToRegister() {
+      this.$router.push('/register');  // 跳转到注册页面
     }
   }
 };
@@ -62,6 +71,7 @@ export default {
   border-radius: 10px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   text-align: center;
+  position: relative;
 }
 
 h2 {
@@ -99,10 +109,36 @@ h2 {
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.3s ease;
+  margin-top: 10px;
 }
 
 .login-button:hover {
   background-color: #3ca772;
+}
+
+.register-link {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  margin-top: 20px;
+  font-size: 14px;
+  color: #666;
+}
+
+.register-button {
+  background-color: transparent;
+  border: none;
+  color: #3498db;
+  cursor: pointer;
+  text-decoration: underline;
+  font-size: 14px;
+  padding: 0;
+  margin-left: 5px;
+  transition: color 0.3s ease;
+}
+
+.register-button:hover {
+  color: #2980b9;
 }
 
 .error-message {

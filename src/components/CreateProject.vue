@@ -13,7 +13,7 @@
         class="input-field textarea-field"
       ></textarea>
 
-      <select v-model="projectCategory" class="input-field">
+      <select v-model="projectCategory" class="input-field select-category">
         <option disabled value="">请选择项目类别</option>
         <option>项目</option>
         <option>竞赛</option>
@@ -21,7 +21,7 @@
         <option>学习</option>
       </select>
 
-      <select v-model="majorType" class="input-field">
+      <select v-model="majorType" class="input-field select-major">
         <option disabled value="">请选择专业类型</option>
         <option>哲学</option>
         <option>经济学</option>
@@ -46,6 +46,8 @@
   </div>
 </template>
 
+
+
 <script>
 import axios from 'axios';
 
@@ -55,8 +57,8 @@ export default {
     return {
       projectTitle: '',
       projectContent: '',
-      projectCategory: '',  // 新增项目类别
-      majorType: '',        // 新增专业类型
+      projectCategory: '',
+      majorType: '',
       successMessage: '',
       errorMessage: ''
     };
@@ -69,8 +71,8 @@ export default {
       axios.post('http://localhost:5000/create-project', {
         title: this.projectTitle,
         content: this.projectContent,
-        category: this.projectCategory,  // 添加项目类别
-        major_type: this.majorType        // 添加专业类型
+        category: this.projectCategory,
+        major_type: this.majorType
       }, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       })
@@ -96,12 +98,12 @@ export default {
 };
 </script>
 
+
 <style scoped>
-/* 样式保持不变 */
 .create-project-container {
   max-width: 600px;
   margin: 50px auto;
-  padding: 20px;
+  padding: 30px;
   background-color: #fff;
   border-radius: 10px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
@@ -112,24 +114,24 @@ export default {
   text-align: center;
   font-size: 28px;
   color: #333;
-  margin-bottom: 20px;
+  margin-bottom: 30px; /* 增加下方间距 */
 }
 
 .form-container {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  gap: 20px; /* 为表单元素间增加默认的间距 */
 }
 
 .input-field {
-  width: 100%;
-  padding: 12px;
+  width: calc(100% - 40px); /* 留出左右各20px的边距 */
+  padding: 14px;
   font-size: 16px;
-  margin-bottom: 15px;
-  border: 1px solid #ccc;
+  border: 1px solid #ddd;
   border-radius: 8px;
   box-sizing: border-box;
   transition: border-color 0.3s ease;
+  margin: 0 20px; /* 增加左右边距 */
 }
 
 .input-field:focus {
@@ -138,19 +140,21 @@ export default {
 }
 
 .textarea-field {
-  height: 120px;
+  height: 150px;
+  resize: vertical; /* 允许用户垂直调整文本域的大小 */
 }
 
 .create-button {
-  width: 100%;
-  padding: 12px;
+  width: calc(100% - 40px); /* 留出左右各20px的边距 */
+  padding: 14px;
   font-size: 16px;
-  color: white;
+  color: #fff;
   background-color: #42b983;
   border: none;
   border-radius: 8px;
   cursor: pointer;
   transition: background-color 0.3s ease, transform 0.3s ease;
+  margin: 0 20px; /* 增加左右边距 */
 }
 
 .create-button:hover {
@@ -163,13 +167,19 @@ export default {
   transform: translateY(0);
 }
 
+.success-message, .error-message {
+  font-size: 14px;
+  margin-top: 10px;
+  text-align: center;
+}
+
 .success-message {
-  color: green;
-  margin-top: 15px;
+  color: #28a745; /* 绿色，用于成功消息 */
 }
 
 .error-message {
-  color: red;
-  margin-top: 15px;
+  color: #dc3545; /* 红色，用于错误消息 */
 }
 </style>
+
+

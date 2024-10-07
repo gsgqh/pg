@@ -2,9 +2,9 @@
   <div class="projects-container">
     <h2>项目列表</h2>
 
-    <!-- 搜索表单 -->
-    <div class="search-form">
-      <select v-model="selectedCategory">
+    <!-- 筛选表单 -->
+    <div class="filter-form">
+      <select v-model="selectedCategory" class="select-field">
         <option value="">选择项目类别</option>
         <option value="项目">项目</option>
         <option value="竞赛">竞赛</option>
@@ -12,7 +12,7 @@
         <option value="学习">学习</option>
       </select>
 
-      <select v-model="selectedMajorType">
+      <select v-model="selectedMajorType" class="select-field">
         <option value="">选择专业类型</option>
         <option value="哲学">哲学</option>
         <option value="经济学">经济学</option>
@@ -27,8 +27,10 @@
         <option value="管理学">管理学</option>
         <option value="艺术学">艺术学</option>
       </select>
+    </div>
 
-      <!-- 搜索栏 -->
+    <!-- 搜索表单 -->
+    <div class="search-form">
       <input
         type="text"
         v-model="searchKeyword"
@@ -69,6 +71,8 @@
     </ul>
   </div>
 </template>
+
+
 
 <script>
 import axios from 'axios';
@@ -127,41 +131,65 @@ export default {
 
 <style scoped>
 .projects-container {
-  max-width: 800px;
+  max-width: 900px;
   margin: 0 auto;
   padding: 20px;
+  font-family: 'Arial', sans-serif;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
 h2 {
   text-align: center;
   font-size: 28px;
   color: #2c3e50;
+  margin-bottom: 20px;
+}
+
+.filter-form {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-bottom: 20px;
+  padding: 10px 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.select-field {
+  flex: 1 1 200px;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  box-sizing: border-box;
 }
 
 .search-form {
   display: flex;
   justify-content: center;
   gap: 10px;
-  margin-bottom: 20px;
-}
-
-select {
-  padding: 10px;
-  font-size: 16px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+  margin-bottom: 30px;
+  padding: 10px 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .search-input {
+  flex: 2 1 300px;
   padding: 10px;
   font-size: 16px;
-  border: 1px solid #ccc;
+  border: 1px solid #ddd;
   border-radius: 5px;
-  width: 200px; /* 搜索框的宽度 */
+  box-sizing: border-box;
 }
 
 .search-button {
-  padding: 10px 15px;
+  flex: 0 0 auto;
+  padding: 10px 20px;
   font-size: 16px;
   background-color: #3498db;
   color: white;
@@ -172,7 +200,7 @@ select {
 }
 
 .search-button:hover {
-  background-color: #2980b9; /* 悬停效果 */
+  background-color: #2980b9;
 }
 
 .projects-list {
@@ -213,18 +241,18 @@ select {
 
 .project-type, .professional-type {
   padding: 10px 20px;
-  background-color: white;
-  border: 1px solid black;
-  border-radius: 12px;
+  background-color: #f0f0f0;
+  border: 1px solid #ddd;
+  border-radius: 20px;
   text-align: center;
   font-size: 14px;
-  cursor: pointer;  /* 添加手形光标以指示可点击 */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  transition: box-shadow 0.3s ease;
+  cursor: pointer;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .project-type:hover, .professional-type:hover {
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* 悬停效果 */
+  background-color: #e0e0e0;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .project-created-by {
@@ -243,3 +271,5 @@ select {
   text-decoration: underline;
 }
 </style>
+
+
