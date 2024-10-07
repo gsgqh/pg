@@ -67,56 +67,107 @@
             {{ project.nickname }}
           </router-link>
         </p>
+
+        <!-- 收藏按钮 -->
+        <button 
+          @click="toggleFavorite(project)" 
+          class="favorite-button" 
+          :class="{ favorited: project.isFavorited }"
+        >
+          {{ project.isFavorited ? '取消收藏' : '收藏' }}
+        </button>
       </li>
     </ul>
   </div>
 </template>
 
-
-
 <script>
 import axios from 'axios';
+import { jwtDecode } from 'jwt-decode';
 
 export default {
   name: 'ViewProjects',
   data() {
     return {
       projects: [],
-      selectedCategory: '',  // 存储用户选择的项目类别
-      selectedMajorType: '',  // 存储用户选择的专业类型
-      searchKeyword: ''  // 存储搜索关键字
+      selectedCategory: '',
+      selectedMajorType: '',
+      searchKeyword: '',
+      userId: null  // 初始化为 null
     };
   },
   methods: {
     fetchProjects() {
       axios.get('http://localhost:5000/projects').then(response => {
-        this.projects = response.data;
+        // 获取用户的收藏项目
+        return axios.get(`http://localhost:5000/users/${this.userId}/favorites`).then(favoritesResponse => {
+          const favoriteIds = new Set(favoritesResponse.data.map(fav => fav.id));
+
+          this.projects = response.data.map(project => ({
+            ...project,
+            isFavorited: favoriteIds.has(project.id)  // 根据用户的收藏状态设置 isFavorited
+          }));
+        });
+      }).catch(error => {
+        console.error("获取项目时出错: ", error);
       });
     },
     searchProjects() {
-      // 构建查询参数
       const params = {
         category: this.selectedCategory,
         major_type: this.selectedMajorType,
-        keyword: this.searchKeyword  // 将关键字添加到查询参数中
+        keyword: this.searchKeyword
       };
 
-      // 发送带有查询参数的请求
       axios.get('http://localhost:5000/projects/search', { params })
         .then(response => {
-          this.projects = response.data;
+          // 获取用户的收藏项目
+          return axios.get(`http://localhost:5000/users/${this.userId}/favorites`).then(favoritesResponse => {
+            const favoriteIds = new Set(favoritesResponse.data.map(fav => fav.id));
+
+            // 更新项目列表，并根据收藏状态设置 isFavorited
+            this.projects = response.data.map(project => ({
+              ...project,
+              isFavorited: favoriteIds.has(project.id) // 根据用户的收藏状态设置 isFavorited
+            }));
+          });
         })
         .catch(error => {
           console.error("搜索项目时出错: ", error);
         });
     },
     selectCategory(category) {
-      this.selectedCategory = category; // 设置选中的项目类别
-      this.searchProjects(); // 自动搜索
+      this.selectedCategory = category;
+      this.searchProjects();
     },
     selectMajorType(majorType) {
-      this.selectedMajorType = majorType; // 设置选中的专业类型
-      this.searchProjects(); // 自动搜索
+      this.selectedMajorType = majorType;
+      this.searchProjects();
+    },
+    toggleFavorite(project) {
+      if (project.isFavorited) {
+        axios.post('http://localhost:5000/projects/unfavorite', {
+          user_id: this.userId,
+          project_id: project.id
+        })
+        .then(() => {
+          project.isFavorited = false;
+        })
+        .catch(error => {
+          console.error("取消收藏时出错: ", error);
+        });
+      } else {
+        axios.post('http://localhost:5000/projects/favorite', {
+          user_id: this.userId,
+          project_id: project.id
+        })
+        .then(() => {
+          project.isFavorited = true;
+        })
+        .catch(error => {
+          console.error("收藏项目时出错: ", error);
+        });
+      }
     }
   },
   watch: {
@@ -124,6 +175,13 @@ export default {
     selectedMajorType: 'searchProjects'   // 当选中的专业类型改变时调用搜索
   },
   mounted() {
+    // 解码 JWT 获取用户ID
+    const token = localStorage.getItem('token');
+    if (token) {
+      const decodedToken = jwtDecode(token);
+      this.userId = decodedToken.sub;  // 假设 sub 包含用户ID
+    }
+
     this.fetchProjects();  // 在组件挂载时获取项目数据
   }
 };
@@ -184,19 +242,16 @@ h2 {
   font-size: 16px;
   border: 1px solid #ddd;
   border-radius: 5px;
-  box-sizing: border-box;
 }
 
 .search-button {
-  flex: 0 0 auto;
   padding: 10px 20px;
-  font-size: 16px;
   background-color: #3498db;
-  color: white;
+  color: #fff;
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.3s;
 }
 
 .search-button:hover {
@@ -204,33 +259,28 @@ h2 {
 }
 
 .projects-list {
-  list-style-type: none;
+  list-style: none;
   padding: 0;
 }
 
 .project-card {
-  background-color: #fff;
-  margin-bottom: 20px;
   padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  transition: box-shadow 0.3s ease;
-}
-
-.project-card:hover {
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .project-title {
-  font-size: 22px;
-  color: #333;
-  margin-bottom: 10px;
+  font-size: 24px;
+  color: #2c3e50;
+  margin: 0 0 10px;
 }
 
 .project-content {
   font-size: 16px;
-  color: #555;
-  margin-bottom: 15px;
+  color: #34495e;
 }
 
 .button-container {
@@ -239,37 +289,40 @@ h2 {
   margin-bottom: 10px;
 }
 
-.project-type, .professional-type {
-  padding: 10px 20px;
-  background-color: #f0f0f0;
-  border: 1px solid #ddd;
-  border-radius: 20px;
-  text-align: center;
-  font-size: 14px;
+.project-type,
+.professional-type {
+  padding: 5px 10px;
+  border-radius: 5px;
+  background-color: #ecf0f1;
   cursor: pointer;
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  transition: background-color 0.3s;
 }
 
-.project-type:hover, .professional-type:hover {
-  background-color: #e0e0e0;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+.project-type:hover,
+.professional-type:hover {
+  background-color: #bdc3c7;
 }
 
 .project-created-by {
   font-size: 14px;
-  color: #666;
+  color: #7f8c8d;
 }
 
-.project-link {
-  color: #3498db;
-  text-decoration: none;
-  font-weight: bold;
+.favorite-button {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  background-color: #e67e22;
+  color: #fff;
+  transition: background-color 0.3s;
 }
 
-.project-link:hover {
-  color: #2980b9;
-  text-decoration: underline;
+.favorite-button:hover {
+  background-color: #d35400;
+}
+
+.favorited {
+  background-color: #c0392b; /* 收藏状态下的背景颜色 */
 }
 </style>
-
-

@@ -51,3 +51,13 @@ class ChatMessage(db.Model):
 
     sender = relationship('User', foreign_keys=[sender_id])
     recipient = relationship('User', foreign_keys=[recipient_id])
+
+class Favorite(db.Model):
+    __tablename__ = 'favorites'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)  # 关联用户
+    project_id = db.Column(db.Integer, db.ForeignKey('projects.id'), nullable=False)  # 关联项目
+
+    user = db.relationship('User', backref='favorites')
+    project = db.relationship('Project', backref='favorites')
