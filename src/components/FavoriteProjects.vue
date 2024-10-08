@@ -98,18 +98,25 @@ export default {
 .favorites-container {
   max-width: 900px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 30px;
+  background: linear-gradient(135deg, #e0f7fa, #ffffff);
+  border-radius: 15px;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
   font-family: 'Arial', sans-serif;
-  background-color: #f9f9f9;
-  border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.favorites-container:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
 }
 
 h2 {
   text-align: center;
   font-size: 28px;
   color: #2c3e50;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .favorites-list {
@@ -121,9 +128,25 @@ h2 {
   background-color: #fff;
   margin-bottom: 20px;
   padding: 20px;
-  border-radius: 10px;
+  border-radius: 12px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   position: relative;
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInUp 0.5s forwards;
+}
+
+.project-card:hover {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  transform: translateY(-5px);
+}
+
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .project-created-by {
@@ -139,6 +162,26 @@ h2 {
   height: 40px;
   border-radius: 50%;
   margin-right: 10px;
+  object-fit: cover;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.creator-avatar:hover {
+  transform: scale(1.1);
+}
+
+.project-link {
+  font-size: 16px;
+  color: #3498db;
+  text-decoration: none;
+  font-weight: bold;
+  transition: color 0.3s ease;
+}
+
+.project-link:hover {
+  color: #2980b9;
+  text-decoration: underline;
 }
 
 .project-title {
@@ -151,6 +194,7 @@ h2 {
   font-size: 16px;
   color: #34495e;
   margin-bottom: 15px;
+  line-height: 1.6;
 }
 
 .button-container {
@@ -158,46 +202,62 @@ h2 {
   flex-direction: column;
   align-items: flex-end;
   gap: 10px;
+  margin-top: 10px;
+}
+
+.join-button, .favorite-button {
+  padding: 10px 20px;
+  font-size: 14px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  font-weight: bold;
 }
 
 .join-button {
-  padding: 8px 15px;
-  background-color: #42b983;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s, transform 0.2s ease;
+  background: linear-gradient(135deg, #42b983, #3ca772);
+  color: #fff;
 }
 
 .join-button:hover {
-  background-color: #3ca772;
+  background: linear-gradient(135deg, #3ca772, #3498db);
   transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .favorite-button {
-  padding: 8px 15px;
-  background-color: #b2bec3;
+  background: linear-gradient(135deg, #b2bec3, #95a5a6);
   color: #2d3436;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s, transform 0.2s ease;
+}
+
+.favorite-button.favorited {
+  background: linear-gradient(135deg, #d63031, #c0392b);
+  color: #fff;
 }
 
 .favorite-button:hover {
-  background-color: #636e72;
+  background: linear-gradient(135deg, #95a5a6, #7f8c8d);
   transform: translateY(-2px);
-}
-
-.favorited {
-  background-color: #d63031;
-  color: #fff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .message {
   margin-top: 10px;
   color: #2c3e50;
+  background-color: #e0f7fa;
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  text-align: center;
   font-weight: bold;
+  opacity: 0;
+  animation: fadeIn 0.3s forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 </style>
+

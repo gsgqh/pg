@@ -224,55 +224,49 @@ export default {
   margin: 0 auto;
   padding: 20px;
   font-family: 'Arial', sans-serif;
-  background-color: #f9f9f9;
-  border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(135deg, #e8f5e9, #ffffff);
+  border-radius: 15px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
 }
 
 h2 {
   text-align: center;
-  font-size: 28px;
+  font-size: 32px;
   color: #2c3e50;
   margin-bottom: 20px;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
 }
 
-.filter-form {
+.filter-form, .search-form {
   display: flex;
   justify-content: center;
   gap: 20px;
   margin-bottom: 20px;
   padding: 10px 20px;
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease;
 }
 
-.select-field {
+.filter-form:hover, .search-form:hover {
+  transform: translateY(-2px);
+}
+
+.select-field, .search-input {
   flex: 1 1 200px;
   padding: 10px;
   font-size: 16px;
   border: 1px solid #ddd;
-  border-radius: 5px;
-  box-sizing: border-box;
-}
-
-.search-form {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  margin-bottom: 30px;
-  padding: 10px 20px;
-  background-color: #fff;
   border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-.search-input {
-  flex: 2 1 300px;
-  padding: 10px;
-  font-size: 16px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
+.select-field:focus, .search-input:focus {
+  border-color: #42b983;
+  box-shadow: 0 0 8px rgba(66, 185, 131, 0.3);
 }
 
 .search-button {
@@ -280,13 +274,15 @@ h2 {
   background-color: #3498db;
   color: #fff;
   border: none;
-  border-radius: 5px;
+  border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  font-weight: bold;
 }
 
 .search-button:hover {
   background-color: #2980b9;
+  transform: translateY(-2px);
 }
 
 .projects-list {
@@ -298,10 +294,26 @@ h2 {
   padding: 20px;
   background-color: #fff;
   border: 1px solid #ddd;
-  border-radius: 8px;
+  border-radius: 12px;
   margin-bottom: 20px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
   position: relative;
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInUp 0.5s forwards;
+}
+
+.project-card:hover {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  transform: translateY(-5px);
+}
+
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .project-header {
@@ -323,6 +335,7 @@ h2 {
   color: #3498db;
   text-decoration: none;
   font-weight: bold;
+  transition: color 0.3s ease;
 }
 
 .project-link:hover {
@@ -340,6 +353,7 @@ h2 {
   font-size: 16px;
   color: #34495e;
   margin-bottom: 10px;
+  line-height: 1.6;
 }
 
 .button-container {
@@ -350,12 +364,12 @@ h2 {
   margin-top: 10px;
 }
 
-.join-button {
+.join-button, .favorite-button {
   padding: 8px 12px;
   background-color: #42b983;
   color: #fff;
   border: none;
-  border-radius: 5px;
+  border-radius: 8px;
   cursor: pointer;
   transition: background-color 0.3s ease, transform 0.2s ease;
   font-size: 14px;
@@ -367,24 +381,18 @@ h2 {
 }
 
 .favorite-button {
-  padding: 5px 12px;
   background-color: #b2bec3;
   color: #2d3436;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.2s ease;
-  font-size: 14px;
+}
+
+.favorite-button.favorited {
+  background-color: #e74c3c;
+  color: #fff;
 }
 
 .favorite-button:hover {
   background-color: #636e72;
   transform: translateY(-2px);
-}
-
-.favorited {
-  background-color: #d63031;
-  color: #fff;
 }
 
 .tag-container {
@@ -399,7 +407,7 @@ h2 {
   border-radius: 8px;
   background-color: rgba(236, 240, 241, 0.8);
   cursor: pointer;
-  transition: background-color 0.3s, box-shadow 0.3s;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
   font-size: 14px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
@@ -408,6 +416,7 @@ h2 {
 .professional-type:hover {
   background-color: rgba(189, 195, 199, 0.8);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transform: translateY(-2px);
 }
 
 .message {
@@ -419,6 +428,15 @@ h2 {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   text-align: center;
   font-weight: bold;
+  opacity: 0;
+  animation: fadeIn 0.3s forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 </style>
+
+
 
