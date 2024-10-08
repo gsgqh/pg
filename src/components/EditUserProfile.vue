@@ -75,12 +75,12 @@ export default {
     },
     async updateProfile() {
       try {
-        await axios.put('http://localhost:5000/edit-profile', this.user, {
+        const response = await axios.put('http://localhost:5000/edit-profile', this.user, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}` // 使用 JWT 进行认证
           }
         });
-        alert('信息更新成功');
+        alert(response.data.message);
       } catch (error) {
         console.error('更新用户信息失败:', error);
         alert('更新信息失败');

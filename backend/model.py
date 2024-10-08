@@ -12,7 +12,7 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)  # 用户ID，主键
     username = db.Column(db.String(80), unique=True, nullable=False)  # 用户名，唯一且不能为空
     password = db.Column(db.String(200), nullable=False)  # 密码，不能为空
-    nickname = db.Column(db.String(100))  # 用户昵称
+    nickname = db.Column(db.String(100), nullable=False)  # 用户昵称
     gender = db.Column(db.String(10))  # 性别，值可以是 'male', 'female' 等
     birthday = db.Column(db.Date)  # 生日，使用日期类型
     signature = db.Column(db.String(200))  # 签名

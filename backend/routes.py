@@ -19,7 +19,12 @@ def register():
     # 检查昵称是否为空
     if not data.get('nickname'):
         return jsonify(message="Nickname cannot be empty", success=False), 200
-
+    
+    # 检查昵称是否存在
+    existing_user = User.query.filter_by(nickname=data['nickname']).first()
+    if existing_user:
+        return jsonify(message="Nickname already exists", success=False), 200
+    
     # 创建新用户对象，包含昵称
     new_user = User(username=data['username'], password=data['password'], nickname=data['nickname'])
     
@@ -191,6 +196,9 @@ def edit_user_profile():
 
         # 更新可编辑的字段，只有在提供非空值时才进行更新
         if 'nickname' in data and data['nickname'] != '':
+            other_user = User.query.filter_by(nickname=data['nickname']).first()
+            if other_user and other_user.id != user.id:
+                return jsonify({'message': 'Nickname already exists'})
             user.nickname = data['nickname']
         if 'gender' in data and data['gender'] != '':
             user.gender = data['gender']
