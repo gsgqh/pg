@@ -54,7 +54,7 @@
 
         <div class="button-container">
           <button 
-            @click="joinProject(project.id)" 
+            @click="joinProject(project)" 
             class="join-button"
           >
             加入项目
@@ -83,12 +83,13 @@
             {{ project.major_type }}
           </div>
         </div>
+
+        <!-- 显示加入项目后的消息 -->
+        <p v-if="project.message" class="message">{{ project.message }}</p>
       </li>
     </ul>
   </div>
 </template>
-
-
 
 <script>
 import axios from 'axios';
@@ -103,7 +104,6 @@ export default {
       selectedMajorType: '',
       searchKeyword: '',
       userId: null,  // 初始化为 null
-      message: ''    // 添加消息状态
     };
   },
   methods: {
@@ -113,7 +113,8 @@ export default {
           const favoriteIds = new Set(favoritesResponse.data.map(fav => fav.id));
           this.projects = response.data.map(project => ({
             ...project,
-            isFavorited: favoriteIds.has(project.id)  // 根据用户的收藏状态设置 isFavorited
+            isFavorited: favoriteIds.has(project.id),
+            message: ''  // 为每个项目添加独立的 message 属性
           }));
         });
       }).catch(error => {
@@ -133,7 +134,8 @@ export default {
             const favoriteIds = new Set(favoritesResponse.data.map(fav => fav.id));
             this.projects = response.data.map(project => ({
               ...project,
-              isFavorited: favoriteIds.has(project.id) // 根据用户的收藏状态设置 isFavorited
+              isFavorited: favoriteIds.has(project.id),
+              message: ''  // 为每个项目添加独立的 message 属性
             }));
           });
         })
@@ -174,18 +176,28 @@ export default {
         });
       }
     },
-    joinProject(projectId) {
-      axios.post(`http://localhost:5000/projects/${projectId}/participate`, {}, {
+    joinProject(project) {
+      axios.post(`http://localhost:5000/projects/${project.id}/participate`, {}, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}` // 使用 JWT 进行认证
         }
       })
       .then(response => {
-        this.message = response.data.message; // 显示成功消息
+        project.message = response.data.message; // 显示后端返回的成功消息到具体的项目卡片中
+
+        // 3秒后清除消息
+        setTimeout(() => {
+          project.message = '';
+        }, 3000);
       })
       .catch(error => {
         console.error("加入项目时出错: ", error);
-        this.message = error.response ? error.response.data.message : "网络错误"; // 显示错误消息
+        project.message = error.response ? error.response.data.message : "网络错误";
+
+        // 3秒后清除消息
+        setTimeout(() => {
+          project.message = '';
+        }, 3000);
       });
     }
   },
@@ -204,6 +216,7 @@ export default {
   }
 };
 </script>
+
 
 <style scoped>
 .projects-container {
@@ -396,8 +409,16 @@ h2 {
   background-color: rgba(189, 195, 199, 0.8);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
+
+.message {
+  margin-top: 10px;
+  color: #2c3e50;
+  background-color: #e0f7fa;
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  font-weight: bold;
+}
 </style>
-
-
-
 
