@@ -329,6 +329,7 @@ def get_favorite_projects(user_id):
     for favorite in favorites:
         user = User.query.filter_by(username=favorite.project.username).first()
         nickname = user.nickname if user else None  # 如果找不到用户，nickname 为 None
+        avatar = user.avatar if user else None
 
         project = Project.query.get(favorite.project_id)
         favorite_projects.append({
@@ -337,7 +338,8 @@ def get_favorite_projects(user_id):
             'content': project.content,
             'username': project.username,
             'major_type': project.major_type,
-            'nickname':nickname,
+            'nickname': nickname,
+            'avatar': avatar,
             'category': project.category,
         })
 
@@ -504,12 +506,15 @@ def get_my_participate_projects():
     for participation in participations:
         project = Project.query.get(participation.project_id)
         if project:
+            # 获取项目创建者
+            creator = User.query.filter_by(username=project.username).first()
             project_list.append({
                 'id': project.id,
                 'title': project.title,
                 'content': project.content,
                 'username': project.username,
-                'nickname': User.query.filter_by(username=project.username).first().nickname,
+                'nickname': creator.nickname,
+                'avatar': creator.avatar,
                 'major_type': project.major_type,
                 'category': project.category,
                 'status': participation.status,  # 添加参与状态
@@ -518,6 +523,7 @@ def get_my_participate_projects():
                     'user_id': p.user_id,
                     'username': p.user.username,
                     'nickname': p.user.nickname,
+                    'avatar': p.user.avatar,
                     'status': p.status
                 } for p in project.participations]  # 返回所有参与者信息
             })

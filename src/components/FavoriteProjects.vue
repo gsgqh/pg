@@ -5,7 +5,7 @@
       <li v-for="project in favoriteProjects" :key="project.id" class="project-card">
         <p class="project-created-by">
           <router-link :to="'/user/' + project.username" class="project-link">
-            <img :src="project.creatorAvatar" alt="头像" class="creator-avatar" />
+            <img :src="project.avatar ? `/assets/${project.avatar}` : 'default-avatar.png'" alt="创建者头像" class="creator-avatar" />
             {{ project.nickname }}
           </router-link>
         </p>

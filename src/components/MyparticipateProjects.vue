@@ -9,7 +9,9 @@
         <!-- 项目创建者信息 -->
         <div class="creator-info">
           <span class="creator-title">项目创建者:</span> 
-          <router-link :to="'/user/' + project.username">{{ project.nickname }}</router-link>
+          <router-link :to="'/user/' + project.nickname">
+            <img :src="project.avatar ? `/assets/${project.avatar}` : 'default-avatar.png'" alt="创建者头像" class="creator-avatar" />
+            {{ project.nickname }}</router-link>
         </div>
   
         <!-- 参与者信息，仅在项目有参与者时显示 -->
@@ -18,8 +20,10 @@
           <ul>
             <li v-for="participant in project.participants" :key="participant.id" class="participant-item">
               <div class="participant-info">
-                用户名: 
-                <router-link :to="'/user/' + participant.username">{{ participant.username }}</router-link> 
+                用户  
+                <router-link :to="'/user/' + participant.username">
+                    <img :src="participant.avatar ? `/assets/${participant.avatar}` : 'default-avatar.png'" alt="参加者头像" class="creator-avatar" />
+                    {{ participant.nickname }}</router-link> 
                 - 状态: {{ participant.status }}
               </div>
             </li>
