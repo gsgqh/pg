@@ -345,7 +345,6 @@ def my_projects():
         } for participation in project.participations]  # 返回参与者信息
     } for project in projects])
 
-# 删除项目接口
 @bp.route('/delete-project/<int:project_id>', methods=['DELETE'])
 @jwt_required()  # 确保用户登录
 def delete_project(project_id):
@@ -353,10 +352,16 @@ def delete_project(project_id):
     current_user_id = get_jwt_identity()
     user = User.query.filter_by(id=current_user_id).first()
     project = Project.query.get(project_id)
+    
     if project and project.username == user.username:
+        # 删除所有收藏
+        Favorite.query.filter_by(project_id=project_id).delete()
+        
+        # 删除项目
         db.session.delete(project)
         db.session.commit()
         return jsonify({'message': '项目删除成功'}), 200
+    
     return jsonify({'message': '项目未找到或没有权限删除'}), 404
 
 # 参与项目接口
