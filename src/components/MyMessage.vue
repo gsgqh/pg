@@ -64,50 +64,75 @@ export default {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 20px;
-    background-color: #f4f6f9;
+    padding: 30px;
+    background: linear-gradient(135deg, #92959b, #ffffff);
     min-height: 100vh;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    font-family: 'Arial', sans-serif;
   }
   
   .messages-title {
-    font-size: 36px;
-    color: #333;
+    font-size: 32px;
+    color: #2c3e50;
     margin-bottom: 20px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
   }
   
   .no-messages {
     font-size: 18px;
     color: #666;
+    margin-top: 20px;
+    text-align: center;
   }
   
   .message-item {
-    background-color: white;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 15px;
+    background-color: #fff;
+    border-radius: 12px;
+    padding: 20px;
     margin: 10px 0;
     width: 100%;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    position: relative;
+    max-width: 800px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.5s forwards;
+  }
+  
+  .message-item:hover {
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    transform: translateY(-5px);
   }
   
   .message-item.read {
-    background-color: #f0f0f0; /* 已读消息的背景颜色 */
+    background-color: #f0f0f0;
+  }
+  
+  @keyframes fadeInUp {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
   
   .message-content {
     font-size: 16px;
     margin-bottom: 10px;
+    color: #34495e;
+    line-height: 1.6;
   }
   
   .message-info {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin-top: 10px;
   }
   
   .sender {
     font-weight: bold;
+    color: #3498db;
+    text-shadow: 0.5px 0.5px rgba(0, 0, 0, 0.1);
   }
   
   .timestamp {
@@ -116,17 +141,33 @@ export default {
   }
   
   .mark-read-button {
-    padding: 5px 10px;
-    background-color: #42b983;
+    padding: 8px 12px;
+    background: linear-gradient(135deg, #42b983, #3ca772);
     color: white;
     border: none;
-    border-radius: 5px;
+    border-radius: 8px;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    font-weight: bold;
   }
   
   .mark-read-button:hover {
-    background-color: #3ca772;
+    background: linear-gradient(135deg, #3ca772, #3498db);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  }
+  
+  .mark-read-button:active {
+    background: #3498db;
+  }
+  
+  .mark-read-button:focus {
+    outline: none;
+  }
+  
+  body::-webkit-scrollbar {
+    width: 0; /* 隐藏滚动条 */
   }
   </style>
+  
   
