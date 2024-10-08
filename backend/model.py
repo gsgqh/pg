@@ -119,3 +119,17 @@ class ParticipationStatus:
     NOT_PARTICIPATED = '未参与'
     PENDING = '待审核'  
     PARTICIPATED = '已参与' 
+
+# 定义消息模型，继承自SQLAlchemy的Model类
+class Message(db.Model):
+    __tablename__ = 'messages'
+
+    id = db.Column(db.Integer, primary_key=True)  # 消息ID，主键
+    sender_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)  # 发送者ID
+    recipient_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)  # 接收者ID
+    content = db.Column(db.String(200), nullable=False)  # 消息内容
+    is_read = db.Column(db.Boolean, default=False)  # 已读状态，默认为未读
+    timestamp = db.Column(db.DateTime, default=db.func.current_timestamp())  # 时间戳
+
+    sender = db.relationship('User', foreign_keys=[sender_id])  # 发送者
+    recipient = db.relationship('User', foreign_keys=[recipient_id])  # 接收者

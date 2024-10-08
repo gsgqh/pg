@@ -13,6 +13,7 @@ import Chat from './components/ChatMessage.vue'; // 导入聊天组件
 import RecentChats from './components/RecentChats.vue'; // 导入最近聊天组件
 import FavoriteProjects from './components/FavoriteProjects.vue';
 import ViewMyProjects from './components/ViewMyProjects.vue';
+import MyMessage from './components/MyMessage.vue';
 
 // 定义路由
 const routes = [
@@ -27,7 +28,8 @@ const routes = [
   { path: '/chat/:recipientId', component: Chat } ,
   { path: '/recent-chats', component: RecentChats }, // 最近聊天的路由
   { path: '/favorites', component: FavoriteProjects }, // 新增收藏项目的路由
-  { path: '/projects/my-projects', component: ViewMyProjects } // 新增查看自己发布的项目的路由
+  { path: '/projects/my-projects', component: ViewMyProjects }, // 新增查看自己发布的项目的路由
+  { path: '/messages', component: MyMessage},
 ];
 
 // 创建路由实例
