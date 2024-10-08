@@ -21,6 +21,4 @@ pnpm-debug.log*
 *.njsproj
 *.sln
 *.sw?
-backend/__pycache__/chat.cpython-312.pyc
-backend/__pycache__/model.cpython-312.pyc
-backend/__pycache__/routes.cpython-312.pyc
+backend/__pycache__

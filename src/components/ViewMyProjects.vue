@@ -21,6 +21,16 @@
               </div>
             </li>
           </ul>
+
+          <!-- 发布公告文本框和按钮 -->
+          <div class="announce-container">
+            <input 
+              v-model="announcementMessage" 
+              placeholder="输入公告内容..." 
+              class="announcement-input"
+            />
+            <button @click="publishAnnouncement(project.id)" class="announce-button">发布公告</button>
+          </div>
         </div>
 
         <div class="delete-container">
@@ -57,7 +67,8 @@ export default {
     return {
       projects: [],
       showConfirmDialog: false,
-      confirmingProjectId: null
+      confirmingProjectId: null,
+      announcementMessage: ''  // 新增：存储公告内容
     };
   },
   created() {
@@ -106,6 +117,33 @@ export default {
     closeDialog() {
       this.showConfirmDialog = false;
       this.confirmingProjectId = null;
+    },
+    async publishAnnouncement(projectId) {
+      if (!this.announcementMessage) {
+        alert('公告内容不能为空！');
+        return;
+      }
+
+      try {
+        const response = await axios.post(`http://localhost:5000/projects/${projectId}/announce`, {
+          message: this.announcementMessage
+        }, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+
+        if (response.status === 200) {
+          alert(response.data.message);
+          this.announcementMessage = ''; // 清空文本框
+          this.fetchProjects(); // 重新获取项目
+        } else {
+          alert('公告发布失败！');
+        }
+      } catch (error) {
+        alert('公告发布失败: ' + error.response.data.message);
+        console.error('公告发布失败:', error);
+      }
     },
     async reviewParticipation(participationId, action) {
       try {
@@ -276,6 +314,32 @@ export default {
 
 .cancel-button:hover {
   background-color: #c0392b;
+}
+
+.announce-container {
+  margin-top: 10px;
+}
+
+.announcement-input {
+  width: 70%;
+  padding: 5px;
+  margin-right: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.announce-button {
+  background-color: #27ae60;
+  color: #fff;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.announce-button:hover {
+  background-color: #219150;
 }
 </style>
 
