@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity
-from model import db, User, Project, Favorite, Participation
+from model import db, User, Project, Favorite, Participation, Message
+import random
 
 # 创建一个Blueprint用于组织路由
 bp = Blueprint('api', __name__)
@@ -111,6 +112,9 @@ def get_projects():
             'major_type': project.major_type,  # 添加专业类型
             'category': project.category  # 添加项目类别
         })
+
+    # 随机打乱项目列表
+    random.shuffle(project_list)
 
     # 返回项目列表的 JSON 格式
     return jsonify(project_list)
@@ -345,7 +349,6 @@ def my_projects():
         } for participation in project.participations]  # 返回参与者信息
     } for project in projects])
 
-# 删除项目接口
 @bp.route('/delete-project/<int:project_id>', methods=['DELETE'])
 @jwt_required()  # 确保用户登录
 def delete_project(project_id):
@@ -353,10 +356,16 @@ def delete_project(project_id):
     current_user_id = get_jwt_identity()
     user = User.query.filter_by(id=current_user_id).first()
     project = Project.query.get(project_id)
+    
     if project and project.username == user.username:
+        # 删除所有收藏
+        Favorite.query.filter_by(project_id=project_id).delete()
+        
+        # 删除项目
         db.session.delete(project)
         db.session.commit()
         return jsonify({'message': '项目删除成功'}), 200
+    
     return jsonify({'message': '项目未找到或没有权限删除'}), 404
 
 # 参与项目接口
@@ -365,23 +374,95 @@ def delete_project(project_id):
 def participate_project(project_id):
     current_user_id = get_jwt_identity()
     user = User.query.filter_by(id=current_user_id).first()
-    user_id =user.id  
     username = user.username
     project = Project.query.get(project_id)
-
+    status = ''
     if not project:
         return jsonify({"message": "项目不存在"}), 404
 
-    if project.username == username:  # 确保用户不是项目创建者
+    if project.username == username:
         return jsonify({"message": "您不能参与自己创建的项目"}), 400
+    
+    existing_participation = Participation.query.filter_by(
+        project_id=project.id,
+        user_id=user.id
+    ).first()
 
-    message = project.participate(user_id)
+    if existing_participation:
+        status = existing_participation.status
+
+    message = project.participate(user.id)
+
+    # 发送消息通知项目创建者
+    project_creator = User.query.filter_by(username=project.username).first()
+    if project_creator and (status == '未参与' or status == ''):
+        new_message = Message(
+            sender_id=user.id,
+            recipient_id=project_creator.id,
+            content=f"{user.nickname}申请参与你的项目《{project.title}》"
+        )
+        db.session.add(new_message)
+        db.session.commit()
+
     return jsonify({"message": message}), 200
 
 
+# 审核参与申请接口
 @bp.route('/participation/review/<int:participation_id>', methods=['POST'])
 @jwt_required()
 def review_participation(participation_id):
-    action = request.json.get('action')  # 获取请求中的action参数
-    result = Project.review_participation(participation_id, action)
-    return jsonify({"message": result})
+    action = request.json.get('action')
+    participation = Participation.query.get(participation_id)
+
+    if not participation:
+        return jsonify({"message": "未找到该参与申请。"}), 404
+
+    project = Project.query.get(participation.project_id)
+    user = User.query.get(participation.user_id)
+
+    project_user = User.query.filter_by(username=project.username).first()
+
+    result = project.review_participation(participation_id, action)
+    if action == 'reject':
+        action = '拒绝'
+    elif action == 'approve':
+        action = '同意'
+
+    # 发送消息通知申请者
+    new_message = Message(
+        sender_id=project_user.id,
+        recipient_id=user.id,
+        content=f"{project_user.nickname}已{action}了你的申请参与项目《{project.title}》"
+    )
+    db.session.add(new_message)
+    db.session.commit()
+
+    return jsonify({"message": result}), 200
+
+
+@bp.route('/messages', methods=['GET'])
+@jwt_required()
+def get_messages():
+    current_user_id = get_jwt_identity()
+    messages = Message.query.filter_by(recipient_id=current_user_id).all()
+    return jsonify([{
+        'id': message.id,
+        'content': message.content,
+        'sender': message.sender.nickname,
+        'is_read': message.is_read,
+        'timestamp': message.timestamp
+    } for message in messages]), 200
+
+
+@bp.route('/messages/<int:message_id>/read', methods=['POST'])
+@jwt_required()
+def mark_message_as_read(message_id):
+    current_user_id = get_jwt_identity()
+    message = Message.query.get(message_id)
+
+    if not message or message.recipient_id != current_user_id:
+        return jsonify({"message": "消息不存在或无权访问"}), 404
+
+    message.is_read = True
+    db.session.commit()
+    return jsonify({"message": "消息已标记为已读"}), 200
