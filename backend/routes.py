@@ -450,7 +450,7 @@ def review_participation(participation_id):
 
     return jsonify({"message": result}), 200
 
-
+# 获取消息接口
 @bp.route('/messages', methods=['GET'])
 @jwt_required()
 def get_messages():
@@ -464,7 +464,7 @@ def get_messages():
         'timestamp': message.timestamp
     } for message in messages]), 200
 
-
+# 消息已读接口
 @bp.route('/messages/<int:message_id>/read', methods=['POST'])
 @jwt_required()
 def mark_message_as_read(message_id):
