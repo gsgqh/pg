@@ -15,12 +15,27 @@
       <input v-model="nickname" placeholder="昵称" class="input-field" />
       <p v-if="nicknameError" class="error-message">{{ nicknameError }}</p>
     </div>
+
+    <!-- 头像选择 -->
+    <div class="avatar-selection">
+      <h3>选择头像:</h3>
+      <div class="avatar-options">
+        <img
+          v-for="avatar in avatars"
+          :key="avatar.id"
+          :src="`/assets/${avatar.file}`"
+          :alt="`头像 ${avatar.id}`"
+          class="avatar"
+          :class="{ selected: selectedAvatar === avatar.file }"
+          @click="selectAvatar(avatar.file)"
+        />
+      </div>
+    </div>
+
     <button @click="register" class="register-button">注册</button>
     <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
   </div>
 </template>
-
-
 
 <script>
 import axios from 'axios';
@@ -32,59 +47,69 @@ export default {
       password: '',
       confirmPassword: '',
       nickname: '',
+      selectedAvatar: '', // 默认未选择头像
       errorMessage: '',
-      usernameError: '', // 用于存储用户名长度错误消息
-      nicknameError: '', // 用于存储昵称长度错误消息
-      maxUsernameLength: 30, // 假设数据库中用户名的最大长度为 30
-      maxNicknameLength: 20 // 假设数据库中昵称的最大长度为 20
+      usernameError: '',
+      nicknameError: '',
+      maxUsernameLength: 30,
+      maxNicknameLength: 20,
+      avatars: [
+        { id: 1, file: '1.png' },
+        { id: 2, file: '2.png' },
+        { id: 3, file: '3.png' },
+        { id: 4, file: '4.png' },
+      ],
     };
   },
   methods: {
+    selectAvatar(avatar) {
+      this.selectedAvatar = avatar; // 设置选中的头像
+    },
     register() {
-      this.errorMessage = ''; // 清空之前的错误消息
-      this.usernameError = ''; // 清空用户名长度错误消息
-      this.nicknameError = ''; // 清空昵称长度错误消息
+      this.errorMessage = '';
+      this.usernameError = '';
+      this.nicknameError = '';
 
-      // 检查用户名长度是否超过限制
       if (this.username.length > this.maxUsernameLength) {
         this.usernameError = `用户名不能超过 ${this.maxUsernameLength} 个字符。`;
         return;
       }
 
-      // 检查昵称长度是否超过限制
       if (this.nickname.length > this.maxNicknameLength) {
         this.nicknameError = `昵称不能超过 ${this.maxNicknameLength} 个字符。`;
         return;
       }
 
-      // 检查密码和确认密码是否一致
       if (this.password !== this.confirmPassword) {
         this.errorMessage = '密码和确认密码不一致。';
         return;
       }
 
-      // 发起注册请求
+      if (!this.selectedAvatar) {
+        this.errorMessage = '请选择头像。';
+        return;
+      }
+
       axios.post('http://localhost:5000/register', {
         username: this.username,
         password: this.password,
-        nickname: this.nickname
+        nickname: this.nickname,
+        avatar: this.selectedAvatar, // 将选择的头像传给后端
       })
       .then(response => {
         if (response.data.success) {
           this.$router.push('/login'); // 注册成功后跳转到登录页面
         } else {
-          this.errorMessage = response.data.message; // 显示服务器返回的错误消息
+          this.errorMessage = response.data.message;
         }
       })
       .catch(error => {
         console.error('Error during registration:', error);
-        this.errorMessage = '注册过程中发生错误。'; // 显示通用错误消息
+        this.errorMessage = '注册过程中发生错误。';
       });
-    }
-  }
+    },
+  },
 };
-
-
 </script>
 
 <style scoped>
@@ -123,6 +148,33 @@ h2 {
   outline: none;
 }
 
+.avatar-selection {
+  margin: 20px 0;
+}
+
+.avatar-options {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 10px;
+}
+
+.avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: border 0.3s ease;
+}
+
+.avatar:hover {
+  border-color: #3498db;
+}
+
+.selected {
+  border-color: #42b983;
+}
+
 .register-button {
   width: 100%;
   padding: 12px;
@@ -145,6 +197,3 @@ h2 {
   font-size: 14px;
 }
 </style>
-
-
-

@@ -2,7 +2,7 @@
   <div v-if="user" class="profile-card">
     <div class="profile-header">
       <!-- 显示用户头像，如果没有头像则显示默认头像 -->
-      <img :src="user.avatar || defaultAvatar" alt="用户头像" class="profile-avatar" />
+      <img :src="user.avatar ? `/assets/${user.avatar}` : defaultAvatar" alt="用户头像" class="profile-avatar" />
       <h2 class="profile-username">{{ user.username }}</h2>
     </div>
     <div class="profile-info">
@@ -26,7 +26,6 @@
   <p v-else>加载中...</p> <!-- 在 user 数据为 null 时显示加载信息 -->
 </template>
 
-
 <script>
 // 正确导入 jwt-decode 库
 import { jwtDecode } from 'jwt-decode';  // 使用命名导出方式
@@ -37,7 +36,7 @@ export default {
     return {
       user: null,  // 用户信息，初始值为 null
       isCurrentUser: false,  // 标志是否是当前登录用户
-      defaultAvatar: 'default-avatar.png'  // 默认头像路径
+      defaultAvatar: '/assets/default-avatar.png'  // 默认头像路径
     };
   },
   created() {

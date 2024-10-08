@@ -43,7 +43,8 @@
     <ul class="projects-list">
       <li v-for="project in projects" :key="project.id" class="project-card">
         <div class="project-header">
-          <img :src="project.creatorAvatar || 'default-avatar.png'" alt="创建者头像" class="creator-avatar" />
+          <!-- 显示创建者头像 -->
+          <img :src="project.creatorAvatar ? `/assets/${project.creatorAvatar}` : 'default-avatar.png'" alt="创建者头像" class="creator-avatar" />
           <router-link :to="'/user/' + project.username" class="project-link">
             {{ project.nickname }}
           </router-link>
@@ -114,7 +115,8 @@ export default {
           this.projects = response.data.map(project => ({
             ...project,
             isFavorited: favoriteIds.has(project.id),
-            message: ''  // 为每个项目添加独立的 message 属性
+            message: '',  // 为每个项目添加独立的 message 属性
+            creatorAvatar: project.avatar // 后端返回的项目数据中包含创建者的头像字段
           }));
         });
       }).catch(error => {
@@ -135,7 +137,8 @@ export default {
             this.projects = response.data.map(project => ({
               ...project,
               isFavorited: favoriteIds.has(project.id),
-              message: ''  // 为每个项目添加独立的 message 属性
+              message: '',  // 为每个项目添加独立的 message 属性
+              creatorAvatar: project.avatar // 后端返回的项目数据中包含创建者的头像字段
             }));
           });
         })
@@ -216,6 +219,7 @@ export default {
   }
 };
 </script>
+
 
 
 <style scoped>

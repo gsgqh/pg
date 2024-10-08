@@ -34,6 +34,21 @@
         <label for="interests">兴趣:</label>
         <textarea v-model="user.interests" id="interests" class="input-field"></textarea>
       </div>
+      <!-- 头像选择 -->
+      <div class="avatar-selection">
+        <h3>选择头像:</h3>
+        <div class="avatar-options">
+          <img
+            v-for="avatar in avatars"
+            :key="avatar.id"
+            :src="`/assets/${avatar.file}`"
+            :alt="`头像 ${avatar.id}`"
+            class="avatar"
+            :class="{ selected: selectedAvatar === avatar.file }"
+            @click="selectAvatar(avatar.file)"
+          />
+        </div>
+      </div>
       <button type="submit" class="save-button">保存</button>
     </form>
   </div>
@@ -53,8 +68,16 @@ export default {
         signature: '',
         school: '',
         major: '',
-        interests: ''
-      }
+        interests: '',
+        avatar: ''  // 添加 avatar 字段
+      },
+      selectedAvatar: '', // 默认未选择头像
+      avatars: [
+        { id: 1, file: '1.png' },
+        { id: 2, file: '2.png' },
+        { id: 3, file: '3.png' },
+        { id: 4, file: '4.png' },
+      ],
     };
   },
   created() {
@@ -69,9 +92,14 @@ export default {
           }
         });
         this.user = response.data;
+        this.selectedAvatar = this.user.avatar; // 设定已选头像
       } catch (error) {
         console.error('获取用户信息失败:', error);
       }
+    },
+    selectAvatar(avatar) {
+      this.selectedAvatar = avatar; // 设置选中的头像
+      this.user.avatar = avatar; // 更新用户头像
     },
     async updateProfile() {
       try {
@@ -189,5 +217,32 @@ textarea.input-field {
   gap: 10px;
 }
 
+.avatar-selection {
+  margin: 20px 0;
+}
+
+.avatar-options {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 10px;
+}
+
+.avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: border 0.3s ease;
+}
+
+.avatar:hover {
+  border-color: #3498db;
+}
+
+.avatar.selected {
+  border-color: #42b983; /* 选中后边框颜色 */
+  border-width: 2px; /* 边框宽度 */
+}
 </style>
 

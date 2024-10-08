@@ -19,6 +19,8 @@ class User(db.Model):
     school = db.Column(db.String(200))  # 学校名称
     major = db.Column(db.String(100))  # 专业
     interests = db.Column(db.Text)  # 兴趣，文本类型，可以存储多个兴趣
+    avatar = db.Column(db.String(100))  # 用户头像，存储头像的URL或文件路径
+
 
 # 定义项目模型，继承自SQLAlchemy的Model类
 class Project(db.Model):

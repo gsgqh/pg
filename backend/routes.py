@@ -25,8 +25,13 @@ def register():
     if existing_user:
         return jsonify(message="Nickname already exists", success=False), 200
     
+    # 获取头像参数
+    avatar = data.get('avatar')
+    if avatar not in ['1.png', '2.png', '3.png', '4.png']:  # 验证头像的有效性
+        return jsonify(message="Invalid avatar selection", success=False), 200
+
     # 创建新用户对象，包含昵称
-    new_user = User(username=data['username'], password=data['password'], nickname=data['nickname'])
+    new_user = User(username=data['username'], password=data['password'], nickname=data['nickname'],avatar=avatar)
     
     # 将新用户添加到数据库会话
     db.session.add(new_user)
@@ -106,6 +111,7 @@ def get_projects():
         # 通过 username 查询对应的 User 表中的 nickname
         user = User.query.filter_by(username=project.username).first()
         nickname = user.nickname if user else None  # 如果找不到用户，nickname 为 None
+        avatar = user.avatar if user else None
 
         # 构建项目和用户的 JSON 数据
         project_list.append({
@@ -114,12 +120,10 @@ def get_projects():
             'content': project.content,
             'username': project.username,
             'nickname': nickname,  # 添加 nickname 字段
+            'avatar': avatar,
             'major_type': project.major_type,  # 添加专业类型
             'category': project.category  # 添加项目类别
         })
-
-    # 随机打乱项目列表
-    random.shuffle(project_list)
 
     # 返回项目列表的 JSON 格式
     return jsonify(project_list)
@@ -175,7 +179,8 @@ def get_user_by_username(username):
             'signature': user.signature,
             'school': user.school,
             'major': user.major,
-            'interests': user.interests
+            'interests': user.interests,
+            'avatar': user.avatar
         })
     else:
         return jsonify({'error': 'User not found'}), 404
@@ -212,6 +217,8 @@ def edit_user_profile():
             user.major = data['major']
         if 'interests' in data and data['interests'] != '':
             user.interests = data['interests']
+        if 'avatar' in data and data['avatar'] != '':
+            user.avatar = data['avatar']  # 更新用户头像
 
         # 提交更改到数据库
         db.session.commit()
@@ -252,6 +259,7 @@ def search_projects():
         # 通过 username 查询对应的 User 表中的 nickname
         user = User.query.filter_by(username=project.username).first()
         nickname = user.nickname if user else None  # 如果找不到用户，nickname 为 None
+        avatar = user.avatar if user else None
 
         # 构建项目和用户的 JSON 数据
         project_list.append({
@@ -260,6 +268,7 @@ def search_projects():
             'content': project.content,
             'username': project.username,
             'nickname': nickname,
+            'avatar': avatar,
             'major_type': project.major_type,  # 添加专业类型
             'category': project.category  # 添加项目类别
         })
