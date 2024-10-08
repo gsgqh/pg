@@ -3,6 +3,7 @@
     <h2>用户注册</h2>
     <div class="input-group">
       <input v-model="username" placeholder="用户名" class="input-field" />
+      <p v-if="usernameError" class="error-message">{{ usernameError }}</p>
     </div>
     <div class="input-group">
       <input v-model="password" type="password" placeholder="密码" class="input-field" />
@@ -12,11 +13,14 @@
     </div>
     <div class="input-group">
       <input v-model="nickname" placeholder="昵称" class="input-field" />
+      <p v-if="nicknameError" class="error-message">{{ nicknameError }}</p>
     </div>
     <button @click="register" class="register-button">注册</button>
     <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
   </div>
 </template>
+
+
 
 <script>
 import axios from 'axios';
@@ -26,14 +30,32 @@ export default {
     return {
       username: '',
       password: '',
-      confirmPassword: '', // 新增确认密码字段
+      confirmPassword: '',
       nickname: '',
-      errorMessage: ''
+      errorMessage: '',
+      usernameError: '', // 用于存储用户名长度错误消息
+      nicknameError: '', // 用于存储昵称长度错误消息
+      maxUsernameLength: 30, // 假设数据库中用户名的最大长度为 30
+      maxNicknameLength: 20 // 假设数据库中昵称的最大长度为 20
     };
   },
   methods: {
     register() {
       this.errorMessage = ''; // 清空之前的错误消息
+      this.usernameError = ''; // 清空用户名长度错误消息
+      this.nicknameError = ''; // 清空昵称长度错误消息
+
+      // 检查用户名长度是否超过限制
+      if (this.username.length > this.maxUsernameLength) {
+        this.usernameError = `用户名不能超过 ${this.maxUsernameLength} 个字符。`;
+        return;
+      }
+
+      // 检查昵称长度是否超过限制
+      if (this.nickname.length > this.maxNicknameLength) {
+        this.nicknameError = `昵称不能超过 ${this.maxNicknameLength} 个字符。`;
+        return;
+      }
 
       // 检查密码和确认密码是否一致
       if (this.password !== this.confirmPassword) {
@@ -41,6 +63,7 @@ export default {
         return;
       }
 
+      // 发起注册请求
       axios.post('http://localhost:5000/register', {
         username: this.username,
         password: this.password,
@@ -60,6 +83,8 @@ export default {
     }
   }
 };
+
+
 </script>
 
 <style scoped>
@@ -116,7 +141,10 @@ h2 {
 
 .error-message {
   color: red;
-  margin-top: 20px;
+  margin-top: 5px;
+  font-size: 14px;
 }
 </style>
+
+
 

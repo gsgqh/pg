@@ -4,14 +4,19 @@
     <div class="form-container">
       <input
         v-model="projectTitle"
-        placeholder="项目标题"
+        @input="checkTitleLength"
+        placeholder="项目标题 (最多 50 字符)"
         class="input-field"
       />
+      <p class="char-count">{{ projectTitle.length }}/50</p>
+
       <textarea
         v-model="projectContent"
-        placeholder="项目内容"
+        @input="checkContentLength"
+        placeholder="项目内容 (最多 500 字符)"
         class="input-field textarea-field"
       ></textarea>
+      <p class="char-count">{{ projectContent.length }}/500</p>
 
       <select v-model="projectCategory" class="input-field select-category">
         <option disabled value="">请选择项目类别</option>
@@ -37,15 +42,13 @@
         <option>艺术学</option>
       </select>
 
-      <button @click="createProject" class="create-button">创建项目</button>
+      <button @click="createProject" class="create-button" :disabled="isDisabled">创建项目</button>
 
-      <!-- 显示消息 -->
       <p v-if="successMessage" class="success-message">{{ successMessage }}</p>
       <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
     </div>
   </div>
 </template>
-
 
 
 <script>
@@ -60,10 +63,35 @@ export default {
       projectCategory: '',
       majorType: '',
       successMessage: '',
-      errorMessage: ''
+      errorMessage: '',
+      maxTitleLength: 50,   // 最大标题长度
+      maxContentLength: 500 // 最大内容长度
     };
   },
+  computed: {
+    isDisabled() {
+      // 如果任一输入框为空或超出字符限制，则禁用按钮
+      return (
+        !this.projectTitle ||
+        this.projectTitle.length > this.maxTitleLength ||
+        !this.projectContent ||
+        this.projectContent.length > this.maxContentLength ||
+        !this.projectCategory ||
+        !this.majorType
+      );
+    }
+  },
   methods: {
+    checkTitleLength() {
+      if (this.projectTitle.length > this.maxTitleLength) {
+        this.projectTitle = this.projectTitle.slice(0, this.maxTitleLength);
+      }
+    },
+    checkContentLength() {
+      if (this.projectContent.length > this.maxContentLength) {
+        this.projectContent = this.projectContent.slice(0, this.maxContentLength);
+      }
+    },
     createProject() {
       this.successMessage = '';
       this.errorMessage = '';
@@ -98,88 +126,113 @@ export default {
 };
 </script>
 
-
 <style scoped>
 .create-project-container {
   max-width: 600px;
   margin: 50px auto;
   padding: 30px;
-  background-color: #fff;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
   font-family: 'Arial', sans-serif;
 }
 
 .create-project-title {
   text-align: center;
   font-size: 28px;
+  font-weight: bold;
   color: #333;
-  margin-bottom: 30px; /* 增加下方间距 */
+  margin-bottom: 30px;
+  border-bottom: 2px solid #3498db;
+  padding-bottom: 10px;
 }
 
 .form-container {
   display: flex;
   flex-direction: column;
-  gap: 20px; /* 为表单元素间增加默认的间距 */
+  gap: 20px;
 }
 
 .input-field {
-  width: calc(100% - 40px); /* 留出左右各20px的边距 */
+  width: calc(100% - 40px);
   padding: 14px;
   font-size: 16px;
   border: 1px solid #ddd;
   border-radius: 8px;
   box-sizing: border-box;
-  transition: border-color 0.3s ease;
-  margin: 0 20px; /* 增加左右边距 */
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  margin: 0 20px;
 }
 
 .input-field:focus {
   border-color: #3498db;
+  box-shadow: 0 0 8px rgba(52, 152, 219, 0.3);
   outline: none;
 }
 
 .textarea-field {
   height: 150px;
-  resize: vertical; /* 允许用户垂直调整文本域的大小 */
+  resize: vertical;
+}
+
+.select-category, .select-major {
+  background-color: #f4f4f4;
 }
 
 .create-button {
-  width: calc(100% - 40px); /* 留出左右各20px的边距 */
+  width: calc(100% - 40px);
   padding: 14px;
   font-size: 16px;
   color: #fff;
-  background-color: #42b983;
+  background-color: #3498db;
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.3s ease;
-  margin: 0 20px; /* 增加左右边距 */
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  margin: 0 20px;
 }
 
-.create-button:hover {
-  background-color: #3ca772;
-  transform: translateY(-2px);
+.create-button:disabled {
+  background-color: #bdc3c7;
+  cursor: not-allowed;
 }
 
-.create-button:active {
-  background-color: #3498db;
+.create-button:hover:enabled {
+  background-color: #2980b9;
+  transform: translateY(-3px);
+}
+
+.create-button:active:enabled {
+  background-color: #1c6380;
   transform: translateY(0);
+}
+
+.char-count {
+  font-size: 12px;
+  color: #888;
+  text-align: right;
+  margin-right: 20px;
+  font-style: italic;
 }
 
 .success-message, .error-message {
   font-size: 14px;
   margin-top: 10px;
   text-align: center;
+  padding: 10px;
+  border-radius: 5px;
+  max-width: 90%;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .success-message {
-  color: #28a745; /* 绿色，用于成功消息 */
+  background-color: #e0f8e0;
+  color: #28a745;
 }
 
 .error-message {
-  color: #dc3545; /* 红色，用于错误消息 */
+  background-color: #f8e0e0;
+  color: #dc3545;
 }
 </style>
-
-
