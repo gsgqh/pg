@@ -5,25 +5,46 @@
       <li v-for="project in projects" :key="project.id" class="project-card">
         <h2 class="project-title">{{ project.title }}</h2>
         <p class="project-content">{{ project.content }}</p>
-        <div class="participants">
+
+        <!-- 仅在项目有参与者时显示参与者列表 -->
+        <div v-if="project.participants && project.participants.length" class="participants">
           <h3>参与者:</h3>
           <ul>
-            <li v-for="participant in project.participants" :key="participant.id">
-              用户名: <router-link :to="'/user/' + participant.username">{{ participant.username }}</router-link> - 状态: {{ participant.status }}
-              <button @click="reviewParticipation(participant.id, 'approve')">通过</button>
-              <button @click="reviewParticipation(participant.id, 'reject')">拒绝</button>
+            <li v-for="participant in project.participants" :key="participant.id" class="participant-item">
+              <div class="participant-info">
+                用户名: 
+                <router-link :to="'/user/' + participant.username">{{ participant.username }}</router-link> 
+                - 状态: {{ participant.status }}
+              </div>
+
+              <!-- 仅在状态为 '待审核' 时显示操作按钮 -->
+              <div v-if="participant.status === '待审核'" class="review-buttons">
+                <button @click="reviewParticipation(participant.id, 'approve')" class="approve-button">通过</button>
+                <button @click="reviewParticipation(participant.id, 'reject')" class="reject-button">拒绝</button>
+              </div>
             </li>
           </ul>
         </div>
-        
-        <button @click="deleteProject(project.id)" class="delete-button">删除项目</button>
+
+        <button 
+          @click="deleteProject(project.id)" 
+          class="delete-button"
+          :disabled="project.participants && project.participants.length"
+        >
+          删除项目
+        </button>
+
+        <!-- 使用图标或文本提示删除限制 -->
+        <p v-if="project.participants && project.participants.length" class="delete-warning">
+          <span class="info-icon" title="无法删除：当前项目中有参与者或待审核申请。">ℹ️</span>
+        </p>
       </li>
     </ul>
   </div>
 </template>
 
 <script>
-import axios from 'axios'; // Importing Axios
+import axios from 'axios';
 
 export default {
   data() {
@@ -39,30 +60,37 @@ export default {
       try {
         const response = await axios.get('http://localhost:5000/projects/my-projects', {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}` // 使用 JWT 进行认证
+            Authorization: `Bearer ${localStorage.getItem('token')}`
           }
         });
-        this.projects = response.data; // Assigning data from the response
+        this.projects = response.data;
       } catch (error) {
-        console.error('获取项目失败:', error); // Logging error
+        console.error('获取项目失败:', error);
       }
     },
     async deleteProject(projectId) {
+      const project = this.projects.find(p => p.id === projectId);
+
+      if (project.participants && project.participants.length > 0) {
+        alert('无法删除项目：当前项目中有参与者或待审核申请。');
+        return;
+      }
+
       if (confirm('确定要删除该项目吗？')) {
         try {
           const response = await axios.delete(`http://localhost:5000/delete-project/${projectId}`, {
             headers: {
-              Authorization: `Bearer ${localStorage.getItem('token')}` // 使用 JWT 进行认证
+              Authorization: `Bearer ${localStorage.getItem('token')}`
             }
           });
           if (response.status === 200) {
-            this.fetchProjects(); // Refresh project list
+            this.fetchProjects();
           } else {
             alert('删除项目失败！');
           }
         } catch (error) {
           alert('删除项目失败！');
-          console.error('删除项目失败:', error); // Logging error
+          console.error('删除项目失败:', error);
         }
       }
     },
@@ -70,23 +98,23 @@ export default {
       try {
         const response = await axios.post(`http://localhost:5000/participation/review/${participationId}`, 
         { 
-          action: action  // 只发送 action
+          action: action
         }, 
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`  // 使用 JWT 进行认证
+            Authorization: `Bearer ${localStorage.getItem('token')}`
           }
         });
-    
+
         if (response.status === 200) {
-          alert(response.data.message);  // 提示操作结果
-          this.fetchProjects();  // 刷新项目列表
+          alert(response.data.message);
+          this.fetchProjects();
         } else {
           alert('审核操作失败！');
         }
       } catch (error) {
         alert('审核操作失败！');
-        console.error('审核操作失败:', error);  // 打印错误日志
+        console.error('审核操作失败:', error);
       }
     }
   }
@@ -141,6 +169,51 @@ export default {
   margin-top: 10px;
 }
 
+.participant-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 10px 0;
+}
+
+.participant-info {
+  flex-grow: 1;
+  text-align: center; /* 保持信息居中 */
+}
+
+.review-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.approve-button {
+  background-color: #27ae60;
+  color: #fff;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.approve-button:hover {
+  background-color: #219150;
+}
+
+.reject-button {
+  background-color: #e74c3c;
+  color: #fff;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.reject-button:hover {
+  background-color: #c0392b;
+}
+
 .delete-button {
   padding: 10px 15px;
   background-color: #e74c3c;
@@ -149,9 +222,28 @@ export default {
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.3s;
+  margin-top: 15px;
 }
 
-.delete-button:hover {
+.delete-button[disabled] {
+  background-color: #bdc3c7;
+  cursor: not-allowed;
+}
+
+.delete-button:hover:not([disabled]) {
   background-color: #c0392b;
+}
+
+.delete-warning {
+  color: #e74c3c;
+  font-size: 14px;
+  margin-top: 5px;
+  display: flex;
+  align-items: center;
+}
+
+.info-icon {
+  cursor: pointer;
+  margin-left: 5px;
 }
 </style>
