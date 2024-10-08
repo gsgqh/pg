@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity
-from model import db, User, Project, Favorite, Participation, Message
+from model import db, User, Project, Favorite, Participation, Message, ParticipationStatus
 import random
 
 # 创建一个Blueprint用于组织路由
@@ -515,3 +515,42 @@ def get_my_participate_projects():
 
     # 返回项目列表的 JSON 格式
     return jsonify(project_list)
+
+# 发布公告接口
+@bp.route('/projects/<int:project_id>/announce', methods=['POST'])
+@jwt_required()  # 确保用户登录
+def announce(project_id):
+    # 获取当前用户（项目创建者）的信息
+    creator_id = get_jwt_identity()
+    project = Project.query.get(project_id)
+    user = User.query.filter_by(id=creator_id).first()
+    if not project:
+        return jsonify({"message": "项目未找到"}), 404
+
+    if project.username != user.username:
+        return jsonify({"message": "您没有权限发布公告"}), 403
+
+    # 获取请求中的消息内容
+    data = request.get_json()
+    message_content = data.get('message')
+
+    if not message_content:
+        return jsonify({"message": "消息内容不能为空"}), 400
+
+    # 查询所有已参与的用户
+    participations = Participation.query.filter_by(project_id=project_id, status=ParticipationStatus.PARTICIPATED).all()
+    
+    if not participations:
+        return jsonify({"message": "没有已参与的用户"}), 404
+
+    # 创建并发送消息给每个参与者
+    for participation in participations:
+        message = Message(
+            sender_id=creator_id,
+            recipient_id=participation.user_id,
+            content="来自项目《"+project.title+"》的公告："+message_content
+        )
+        db.session.add(message)
+
+    db.session.commit()
+    return jsonify({"message": "公告已成功发布"}), 200

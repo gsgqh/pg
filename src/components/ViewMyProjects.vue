@@ -1,6 +1,7 @@
 <template>
   <div class="projects-container">
     <h1 class="title">项目管理</h1>
+
     <ul class="projects-list">
       <li v-for="project in projects" :key="project.id" class="project-card">
         <h2 class="project-title">{{ project.title }}</h2>
@@ -24,6 +25,13 @@
               </div>
             </li>
           </ul>
+
+          <!-- 添加公告输入框 -->
+          <div class="announcement-container">
+            <h3>发布公告</h3>
+            <textarea v-model="announcementMessage[project.id]" placeholder="输入公告内容..." rows="4"></textarea>
+            <button @click="publishAnnouncement(project.id)" class="publish-button">发布公告</button>
+          </div>
         </div>
 
         <button 
@@ -49,7 +57,8 @@ import axios from 'axios';
 export default {
   data() {
     return {
-      projects: []
+      projects: [],
+      announcementMessage: {}  // 新增，使用对象存储每个项目的公告消息
     };
   },
   created() {
@@ -116,6 +125,36 @@ export default {
         alert('审核操作失败！');
         console.error('审核操作失败:', error);
       }
+    },
+    async publishAnnouncement(projectId) {
+      const message = this.announcementMessage[projectId];
+
+      if (!message) {
+        alert('公告内容不能为空！');
+        return;
+      }
+
+      try {
+        const response = await axios.post(`http://localhost:5000/projects/${projectId}/announce`, 
+        { 
+          message: message 
+        }, 
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+
+        if (response.status === 200) {
+          alert('公告发布成功！');
+          this.announcementMessage[projectId] = '';  // 清空对应项目的输入框
+        } else {
+          alert('公告发布失败！');
+        }
+      } catch (error) {
+        alert('公告发布失败！');
+        console.error('公告发布失败:', error);
+      }
     }
   }
 };
@@ -178,7 +217,7 @@ export default {
 
 .participant-info {
   flex-grow: 1;
-  text-align: center; /* 保持信息居中 */
+  text-align: center;
 }
 
 .review-buttons {
@@ -245,5 +284,33 @@ export default {
 .info-icon {
   cursor: pointer;
   margin-left: 5px;
+}
+
+/* 添加公告相关的样式 */
+.announcement-container {
+  margin-top: 20px;
+}
+
+textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  resize: none;
+}
+
+.publish-button {
+  margin-top: 10px;
+  padding: 10px 15px;
+  background-color: #3498db;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.publish-button:hover {
+  background-color: #2980b9;
 }
 </style>
