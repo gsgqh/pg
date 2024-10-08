@@ -2,6 +2,7 @@
   <div class="projects-container">
     <h2>项目列表</h2>
 
+    <!-- 筛选表单 -->
     <div class="filter-form">
       <select v-model="selectedCategory" class="select-field">
         <option value="">选择项目类别</option>
@@ -28,6 +29,7 @@
       </select>
     </div>
 
+    <!-- 搜索表单 -->
     <div class="search-form">
       <input
         type="text"
@@ -40,10 +42,34 @@
 
     <ul class="projects-list">
       <li v-for="project in projects" :key="project.id" class="project-card">
+        <div class="project-header">
+          <img :src="project.creatorAvatar || 'default-avatar.png'" alt="创建者头像" class="creator-avatar" />
+          <router-link :to="'/user/' + project.username" class="project-link">
+            {{ project.nickname }}
+          </router-link>
+        </div>
+
         <h3 class="project-title">{{ project.title }}</h3>
         <p class="project-content">{{ project.content }}</p>
 
         <div class="button-container">
+          <button 
+            @click="joinProject(project.id)" 
+            class="join-button"
+          >
+            加入项目
+          </button>
+
+          <button 
+            @click="toggleFavorite(project)" 
+            class="favorite-button" 
+            :class="{ favorited: project.isFavorited }"
+          >
+            {{ project.isFavorited ? '取消收藏' : '收藏' }}
+          </button>
+        </div>
+
+        <div class="tag-container">
           <div 
             class="project-type" 
             @click="selectCategory(project.category)"
@@ -57,33 +83,12 @@
             {{ project.major_type }}
           </div>
         </div>
-
-        <p class="project-created-by">
-          <strong>创建者:</strong> 
-          <router-link :to="'/user/' + project.username" class="project-link">
-            {{ project.nickname }}
-          </router-link>
-        </p>
-
-        <button 
-          @click="toggleFavorite(project)" 
-          class="favorite-button" 
-          :class="{ favorited: project.isFavorited }"
-        >
-          {{ project.isFavorited ? '取消收藏' : '收藏' }}
-        </button>
-
-        <button 
-          @click="joinProject(project.id)" 
-          class="join-button"
-        >
-          加入项目
-        </button>
-        <p v-if="message" class="message">{{ message }}</p> <!-- 添加这一行 -->
       </li>
     </ul>
   </div>
 </template>
+
+
 
 <script>
 import axios from 'axios';
@@ -283,61 +288,80 @@ h2 {
   border-radius: 8px;
   margin-bottom: 20px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  position: relative; /* 为创建者信息定位做准备 */
+  position: relative;
+}
+
+.project-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.creator-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 10px;
+  object-fit: cover;
+}
+
+.project-link {
+  font-size: 16px;
+  color: #3498db;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.project-link:hover {
+  color: #2980b9;
+  text-decoration: underline;
 }
 
 .project-title {
   font-size: 24px;
   color: #2c3e50;
-  margin: 0 0 10px;
+  margin: 10px 0;
 }
 
 .project-content {
   font-size: 16px;
   color: #34495e;
+  margin-bottom: 10px;
 }
 
 .button-container {
   display: flex;
-  gap: 10px;
-  margin-top: 10px; /* 与其他内容保持间距 */
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 5px;
+  margin-top: 10px;
 }
 
-.project-type,
-.professional-type {
-  padding: 8px 15px; /* 增加标签大小 */
-  border-radius: 8px;
-  background-color: rgba(236, 240, 241, 0.8); /* 半透明背景色 */
-  cursor: pointer;
-  transition: background-color 0.3s, box-shadow 0.3s;
-  font-size: 14px; /* 标签字体稍大 */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.project-type:hover,
-.professional-type:hover {
-  background-color: rgba(189, 195, 199, 0.8); /* 悬停时背景稍深 */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* 增加阴影 */
-}
-
-.project-created-by {
-  font-size: 14px;
-  color: #7f8c8d;
-  position: absolute;
-  top: 10px;
-  left: 20px;
-}
-
-.favorite-button {
-  padding: 5px 10px; /* 缩小按钮 */
+.join-button {
+  padding: 8px 12px;
+  background-color: #42b983;
+  color: #fff;
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  background-color: #b2bec3; /* 柔和的灰色 */
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  font-size: 14px;
+}
+
+.join-button:hover {
+  background-color: #3ca772;
+  transform: translateY(-2px);
+}
+
+.favorite-button {
+  padding: 5px 12px;
+  background-color: #b2bec3;
   color: #2d3436;
-  transition: background-color 0.3s, transform 0.2s ease;
-  font-size: 14px; /* 字体稍小 */
-  margin-top: 10px; /* 调整按钮与其他内容的间距 */
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  font-size: 14px;
 }
 
 .favorite-button:hover {
@@ -346,15 +370,34 @@ h2 {
 }
 
 .favorited {
-  background-color: #d63031; /* 收藏状态下的背景颜色 */
-  color: #fff; /* 收藏状态下文字颜色 */
+  background-color: #d63031;
+  color: #fff;
 }
 
-.message {
+.tag-container {
+  display: flex;
+  gap: 10px;
   margin-top: 10px;
-  color: #2c3e50; /* 或其他你喜欢的颜色 */
-  font-weight: bold; /* 或者其他样式 */
+}
+
+.project-type,
+.professional-type {
+  padding: 8px 15px;
+  border-radius: 8px;
+  background-color: rgba(236, 240, 241, 0.8);
+  cursor: pointer;
+  transition: background-color 0.3s, box-shadow 0.3s;
+  font-size: 14px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.project-type:hover,
+.professional-type:hover {
+  background-color: rgba(189, 195, 199, 0.8);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 </style>
+
+
 
 
