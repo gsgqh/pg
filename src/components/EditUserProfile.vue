@@ -94,73 +94,100 @@ export default {
 .user-profile {
   max-width: 600px;
   margin: 50px auto;
-  padding: 20px;
-  background-color: #fff;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 30px;
+  background: linear-gradient(135deg, #e0f7fa, #ffffff);
+  border-radius: 15px;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
   font-family: 'Arial', sans-serif;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.user-profile:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
 }
 
 h2 {
   text-align: center;
-  font-size: 24px;
-  color: #333;
+  font-size: 28px;
+  color: #2c3e50;
   margin-bottom: 30px;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .profile-form {
   display: flex;
   flex-direction: column;
+  gap: 20px;
 }
 
 .form-group {
-  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 label {
   font-size: 16px;
-  margin-bottom: 5px;
-  display: block;
   color: #555;
+  font-weight: bold;
 }
 
 .input-field {
   width: 100%;
-  padding: 10px;
+  padding: 12px;
   font-size: 14px;
   border: 1px solid #ccc;
-  border-radius: 5px;
-  box-sizing: border-box;
-  transition: border-color 0.3s ease;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  background-color: #fafafa;
 }
 
 .input-field:focus {
-  border-color: #3498db;
+  border-color: #42b983;
+  box-shadow: 0 0 8px rgba(66, 185, 131, 0.3);
   outline: none;
+  background-color: #ffffff;
 }
 
 textarea.input-field {
-  height: 80px;
+  height: 120px;
 }
 
 .save-button {
-  padding: 10px 15px;
+  padding: 12px 20px;
   font-size: 16px;
+  font-weight: bold;
   color: #fff;
-  background-color: #42b983;
+  background: linear-gradient(135deg, #42b983, #3ca772);
   border: none;
-  border-radius: 5px;
+  border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.3s ease;
+  transition: background 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .save-button:hover {
-  background-color: #3ca772;
+  background: linear-gradient(135deg, #3ca772, #3498db);
   transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .save-button:active {
   background-color: #3498db;
   transform: translateY(0);
 }
+
+.save-button:disabled {
+  background: #bdc3c7;
+  cursor: not-allowed;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
 </style>
+
