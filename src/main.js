@@ -14,6 +14,7 @@ import RecentChats from './components/RecentChats.vue'; // 导入最近聊天组
 import FavoriteProjects from './components/FavoriteProjects.vue';
 import ViewMyProjects from './components/ViewMyProjects.vue';
 import MyMessage from './components/MyMessage.vue';
+import MyparticipateProjects from './components/MyparticipateProjects.vue';
 
 // 定义路由
 const routes = [
@@ -30,6 +31,8 @@ const routes = [
   { path: '/favorites', component: FavoriteProjects }, // 新增收藏项目的路由
   { path: '/projects/my-projects', component: ViewMyProjects }, // 新增查看自己发布的项目的路由
   { path: '/messages', component: MyMessage},
+  { path: '/my-participate-projects', component: MyparticipateProjects},
+  
 ];
 
 // 创建路由实例

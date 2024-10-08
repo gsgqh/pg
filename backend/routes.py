@@ -334,6 +334,7 @@ def get_favorite_projects(user_id):
 
     return jsonify(favorite_projects)
 
+# 获取我的项目接口
 @bp.route('/projects/my-projects', methods=['GET'])
 @jwt_required()  # 确保用户登录
 def my_projects():
@@ -353,10 +354,12 @@ def my_projects():
             'id': participation.id,
             'user_id': participation.user_id,
             'username': participation.user.username,
+            'nickname': participation.user.nickname,
             'status': participation.status
         } for participation in project.participations]  # 返回参与者信息
     } for project in projects])
 
+# 删除项目接口
 @bp.route('/delete-project/<int:project_id>', methods=['DELETE'])
 @jwt_required()  # 确保用户登录
 def delete_project(project_id):
@@ -474,3 +477,41 @@ def mark_message_as_read(message_id):
     message.is_read = True
     db.session.commit()
     return jsonify({"message": "消息已标记为已读"}), 200
+
+# 获取当前用户参与的所有项目接口，接收GET请求
+@bp.route('/my-participate-projects', methods=['GET'])
+@jwt_required()  # 确保用户登录
+def get_my_participate_projects():
+    # 获取当前用户的 ID
+    current_user_id = get_jwt_identity()
+    user = User.query.filter_by(id=current_user_id).first()
+    user_id = user.id  
+
+    # 查询当前用户参与的所有项目
+    participations = Participation.query.filter_by(user_id=user_id).all()
+
+    # 构建项目列表
+    project_list = []
+    for participation in participations:
+        project = Project.query.get(participation.project_id)
+        if project:
+            project_list.append({
+                'id': project.id,
+                'title': project.title,
+                'content': project.content,
+                'username': project.username,
+                'nickname': User.query.filter_by(username=project.username).first().nickname,
+                'major_type': project.major_type,
+                'category': project.category,
+                'status': participation.status,  # 添加参与状态
+                'participants': [{
+                    'id': p.id,
+                    'user_id': p.user_id,
+                    'username': p.user.username,
+                    'nickname': p.user.nickname,
+                    'status': p.status
+                } for p in project.participations]  # 返回所有参与者信息
+            })
+
+    # 返回项目列表的 JSON 格式
+    return jsonify(project_list)
