@@ -3,7 +3,7 @@
     <header>
       <h1>PG</h1>
       <nav>
-        <!-- 仅在已登录时显示其他导航项 -->
+        <!-- 导航按钮 -->
         <router-link v-if="isLoggedIn" to="/">主页</router-link>
         <router-link v-if="isLoggedIn" to="/create-project">创建项目</router-link>
         <router-link v-if="isLoggedIn" to="/projects">查看项目</router-link>
@@ -96,6 +96,7 @@ header h1 {
   color: #fff;
   margin: 0 20px; /* 使标题与边距之间有些空隙 */
   font-size: 24px;
+  animation: slideInFromLeft 0.5s ease-out;
 }
 
 nav {
@@ -103,11 +104,46 @@ nav {
   flex-wrap: wrap; /* 允许导航项换行 */
   gap: 15px;
   margin-right: 20px; /* 使导航项与右侧有些空隙 */
-  overflow-x: auto; /* 内容太多时允许水平滚动 */
-  animation: slideIn 0.8s ease-in-out; /* 添加动态效果 */
+  overflow-x: hidden;
+  scrollbar-width: none; /* Firefox 隐藏滚动条 */
 }
 
-@keyframes slideIn {
+nav::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera 隐藏滚动条 */
+}
+
+nav a {
+  color: #fff;
+  text-decoration: none;
+  padding: 5px 10px;
+  font-size: 16px;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  animation: slideInFromRight 0.5s ease-out;
+}
+
+nav a:hover {
+  transform: scale(1.05);
+  opacity: 0.9;
+}
+
+.logout {
+  background-color: transparent;
+  color: #fff;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 5px 10px;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  animation: slideInFromRight 0.5s ease-out;
+}
+
+.logout:hover {
+  transform: scale(1.05);
+  opacity: 0.9;
+}
+
+/* 导航项从右侧滑入的动画 */
+@keyframes slideInFromRight {
   0% {
     transform: translateX(100%);
     opacity: 0;
@@ -118,32 +154,16 @@ nav {
   }
 }
 
-nav a {
-  color: #fff;
-  text-decoration: none;
-  padding: 5px 10px;
-  font-size: 16px;
-  transition: color 0.3s ease, transform 0.3s ease;
-}
-
-nav a:hover {
-  color: #c9f1db;
-  transform: scale(1.1);
-}
-
-.logout {
-  background-color: transparent;
-  color: #fff;
-  border: none;
-  font-size: 16px;
-  cursor: pointer;
-  padding: 5px 10px;
-  transition: color 0.3s ease, transform 0.3s ease;
-}
-
-.logout:hover {
-  color: #c9f1db;
-  transform: scale(1.1);
+/* 标题从左侧滑入的动画 */
+@keyframes slideInFromLeft {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
 
 /* 主体内容 */

@@ -28,7 +28,7 @@ def register():
     
     # 获取头像参数
     avatar = data.get('avatar')
-    if avatar not in ['1.png', '2.png', '3.png', '4.png']:  # 验证头像的有效性
+    if avatar not in ['1.png', '2.png', '3.png', '4.png', "5.png", "6.png", "7.png", "8.png", "9.png", "10.png"]:  # 验证头像的有效性
         return jsonify(message="Invalid avatar selection", success=False), 200
 
     # 创建新用户对象，包含昵称
