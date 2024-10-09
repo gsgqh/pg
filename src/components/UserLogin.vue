@@ -92,7 +92,7 @@ h2 {
 }
 
 .input-field {
-  width: 100%;
+  width: calc(100% - 24px); /* 确保与按钮对齐 */
   padding: 12px;
   font-size: 16px;
   border: 1px solid #ccc;
@@ -100,6 +100,7 @@ h2 {
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
   background-color: #fafafa;
+  margin: 0 auto; /* 保持居中 */
 }
 
 .input-field:focus {
@@ -110,7 +111,7 @@ h2 {
 }
 
 .login-button {
-  width: 100%;
+  width: calc(100% - 24px); /* 与输入框保持一致 */
   padding: 12px;
   background: linear-gradient(135deg, #42b983, #3ca772);
   color: white;
@@ -120,7 +121,7 @@ h2 {
   cursor: pointer;
   transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
   font-weight: bold;
-  margin-top: 10px;
+  margin: 10px auto 0 auto; /* 保持居中 */
 }
 
 .login-button:hover {
@@ -174,4 +175,5 @@ h2 {
   }
 }
 </style>
+
 
