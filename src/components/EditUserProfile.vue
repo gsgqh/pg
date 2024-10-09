@@ -34,7 +34,6 @@
         <label for="interests">兴趣:</label>
         <textarea v-model="user.interests" id="interests" class="input-field"></textarea>
       </div>
-      <!-- 头像选择 -->
       <div class="avatar-selection">
         <h3>选择头像:</h3>
         <div class="avatar-options">
@@ -51,6 +50,11 @@
       </div>
       <button type="submit" class="save-button">保存</button>
     </form>
+
+    <!-- 美化的弹窗 -->
+    <div v-if="showMessage" class="custom-alert">
+      <p>{{ successMessage }}</p>
+    </div>
   </div>
 </template>
 
@@ -69,15 +73,17 @@ export default {
         school: '',
         major: '',
         interests: '',
-        avatar: ''  // 添加 avatar 字段
+        avatar: ''
       },
-      selectedAvatar: '', // 默认未选择头像
+      selectedAvatar: '',
       avatars: [
         { id: 1, file: '1.png' },
         { id: 2, file: '2.png' },
         { id: 3, file: '3.png' },
-        { id: 4, file: '4.png' },
+        { id: 4, file: '4.png' }
       ],
+      showMessage: false,
+      successMessage: ''
     };
   },
   created() {
@@ -88,30 +94,38 @@ export default {
       try {
         const response = await axios.get('http://localhost:5000/edit-profile', {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}` // 使用 JWT 进行认证
+            Authorization: `Bearer ${localStorage.getItem('token')}`
           }
         });
         this.user = response.data;
-        this.selectedAvatar = this.user.avatar; // 设定已选头像
+        this.selectedAvatar = this.user.avatar;
       } catch (error) {
         console.error('获取用户信息失败:', error);
       }
     },
     selectAvatar(avatar) {
-      this.selectedAvatar = avatar; // 设置选中的头像
-      this.user.avatar = avatar; // 更新用户头像
+      this.selectedAvatar = avatar;
+      this.user.avatar = avatar;
     },
     async updateProfile() {
       try {
         const response = await axios.put('http://localhost:5000/edit-profile', this.user, {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}` // 使用 JWT 进行认证
+            Authorization: `Bearer ${localStorage.getItem('token')}`
           }
         });
-        alert(response.data.message);
+        this.successMessage = response.data.message;
+        this.showMessage = true;
+
+        // 3 秒后自动跳转到用户的 "我的资料" 页面
+        setTimeout(() => {
+          this.showMessage = false;
+          this.$router.push(`/user/${this.user.username}`);
+        }, 3000);
       } catch (error) {
         console.error('更新用户信息失败:', error);
-        alert('更新信息失败');
+        this.successMessage = '更新信息失败';
+        this.showMessage = true;
       }
     }
   }
@@ -201,22 +215,6 @@ textarea.input-field {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
-.save-button:active {
-  background-color: #3498db;
-  transform: translateY(0);
-}
-
-.save-button:disabled {
-  background: #bdc3c7;
-  cursor: not-allowed;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
 .avatar-selection {
   margin: 20px 0;
 }
@@ -241,8 +239,25 @@ textarea.input-field {
 }
 
 .avatar.selected {
-  border-color: #42b983; /* 选中后边框颜色 */
-  border-width: 2px; /* 边框宽度 */
+  border-color: #42b983;
+}
+
+.custom-alert {
+  position: fixed;
+  bottom: 20px; /* 改为页面底部 */
+  left: 50%;
+  transform: translateX(-50%);
+  background: #42b983;
+  color: white;
+  padding: 15px 30px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  font-size: 16px;
+  animation: fadeInOut 3s ease-in-out;
+}
+
+@keyframes fadeInOut {
+  0%, 100% { opacity: 0; }
+  10%, 90% { opacity: 1; }
 }
 </style>
-
