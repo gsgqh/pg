@@ -1,77 +1,110 @@
 <template>
-  <div class="homepage-container">
-    <h1 class="homepage-title">欢迎来到项目演示页面</h1>
-    <div class="button-group">
-      <button @click="goToRegister" class="homepage-button">注册</button>
-      <button @click="goToLogin" class="homepage-button">登录</button>
-      <button @click="goToCreateProject" class="homepage-button">创建项目</button>
-      <button @click="goToViewProjects" class="homepage-button">查看项目</button>
+  <div v-if="showWelcome" class="welcome-container">
+    <div class="welcome-content">
+      <h1 class="welcome-title">欢迎来到PG</h1>
+      <button @click="skipWelcome" class="welcome-button">点击继续</button>
     </div>
   </div>
 </template>
 
 <script>
 export default {
-  name: 'HomePage',
+  data() {
+    return {
+      showWelcome: true
+    };
+  },
+  mounted() {
+    // 3秒后自动隐藏欢迎界面并导航到登录界面
+    setTimeout(() => {
+      this.skipWelcome();
+    }, 3000);
+  },
   methods: {
-    goToRegister() {
-      this.$router.push('/register');
-    },
-    goToLogin() {
+    skipWelcome() {
+      this.showWelcome = false;
+      // 导航到登录页面
       this.$router.push('/login');
-    },
-    goToCreateProject() {
-      this.$router.push('/create-project');
-    },
-    goToViewProjects() {
-      this.$router.push('/projects');
     }
   }
 };
+
 </script>
 
 <style scoped>
-.homepage-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+.welcome-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
   height: 100vh;
-  background-color: #f4f6f9;
-}
-
-.homepage-title {
-  font-size: 36px;
-  color: #333;
-  margin-bottom: 40px;
-}
-
-.button-group {
+  background: linear-gradient(45deg, #42a5f5, #7e57c2, #42b983);
+  background-size: 300% 300%;
   display: flex;
-  flex-direction: column;
+  justify-content: center;
   align-items: center;
+  animation: backgroundAnimation 6s ease infinite;
+  z-index: 9999;
 }
 
-.homepage-button {
-  width: 200px;
-  padding: 15px;
-  margin: 10px;
-  font-size: 18px;
-  background-color: #42b983;
+@keyframes backgroundAnimation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.welcome-content {
+  text-align: center;
   color: white;
-  border: none;
-  border-radius: 10px;
+  animation: fadeIn 1s ease;
+  backdrop-filter: blur(5px);
+  background: rgba(255, 255, 255, 0.1);
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.welcome-title {
+  font-size: 32px;
+  margin-bottom: 20px;
+  text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.welcome-button {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  padding: 10px 20px;
+  border: 2px solid white;
+  border-radius: 30px;
   cursor: pointer;
+  font-size: 18px;
   transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
-.homepage-button:hover {
-  background-color: #3ca772;
-  transform: translateY(-2px);
+.welcome-button:hover {
+  background-color: rgba(255, 255, 255, 0.4);
+  transform: scale(1.1);
 }
 
-.homepage-button:active {
-  background-color: #3498db;
-  transform: translateY(0);
+.welcome-button:active {
+  transform: scale(1);
+  background-color: rgba(255, 255, 255, 0.6);
 }
 </style>
