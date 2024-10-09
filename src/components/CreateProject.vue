@@ -42,14 +42,16 @@
         <option>艺术学</option>
       </select>
 
+      <label for="file-upload" class="file-upload-label">选择照片</label>
       <input
         type="file"
+        id="file-upload"
         @change="handleFileUpload"
         multiple
         accept="image/*"
-        class="input-field"
+        class="input-field file-input"
       />
-      <p class="info-text">最多上传 9 张图片</p>
+      <p class="info-text">最多上传 9 张图片 (已选择 {{ selectedFiles.length }} 张)</p>
 
       <button @click="createProject" class="create-button" :disabled="isDisabled">创建项目</button>
 
@@ -199,6 +201,29 @@ export default {
   background-color: #f4f4f4;
 }
 
+.file-upload-label {
+  width: 200px;
+  padding: 10px;
+  background-color: #42b983;
+  color: #fff;
+  text-align: center;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  margin: 0 auto;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.file-upload-label:hover {
+  background-color: #3ca772;
+  transform: translateY(-3px);
+}
+
+.file-input {
+  display: none;
+}
+
 .create-button {
   width: calc(100% - 40px);
   padding: 14px;
@@ -254,5 +279,14 @@ export default {
 .error-message {
   background-color: #f8e0e0;
   color: #dc3545;
+}
+
+.info-text {
+  font-size: 14px;
+  color: #888;
+  text-align: center;
+  margin-top: -10px;
+  margin-bottom: 20px;
+  font-style: italic;
 }
 </style>

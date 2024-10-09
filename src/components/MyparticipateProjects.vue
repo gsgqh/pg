@@ -127,6 +127,29 @@
   line-height: 1.6;
 }
 
+.images-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.project-image {
+  width: 100%;
+  max-width: 150px; /* 设置最大宽度 */
+  height: auto; /* 高度自动调整 */
+  object-fit: cover; /* 保持图片比例 */
+  border-radius: 8px; /* 圆角 */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 阴影效果 */
+  transition: transform 0.3s ease, box-shadow 0.3s ease; /* 平滑过渡效果 */
+}
+
+.project-image:hover {
+  transform: scale(1.1); /* 悬停时放大 */
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* 加强阴影 */
+}
+
 .creator-info,
 .participants {
   margin-top: 15px;
@@ -184,7 +207,7 @@
 }
 
 .creator-avatar:hover {
-  transform: scale(1.1);
+  transform: scale(1.1); /* 悬停时放大 */
 }
 
 .participant-link {
@@ -211,6 +234,7 @@
 body::-webkit-scrollbar {
   width: 0;
 }
+
 </style>
 
   

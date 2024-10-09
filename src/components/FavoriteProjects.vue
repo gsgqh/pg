@@ -18,7 +18,7 @@
 
         <div class="button-container">
           <button 
-            @click="joinProject(project.id)" 
+            @click="joinProject(project)" 
             class="join-button"
           >
             加入项目
@@ -31,11 +31,12 @@
             取消收藏
           </button>
         </div>
-        <p v-if="message" class="message">{{ message }}</p>
+        <p v-if="project.message" class="message">{{ project.message }}</p>
       </li>
     </ul>
   </div>
 </template>
+
 
 
 <script>
@@ -47,15 +48,18 @@ export default {
   data() {
     return {
       favoriteProjects: [],
-      userId: null,
-      message: '' // 消息状态
+      userId: null
     };
   },
   methods: {
     fetchFavoriteProjects() {
       axios.get(`http://localhost:5000/users/${this.userId}/favorites`)
         .then(response => {
-          this.favoriteProjects = response.data;
+          // 初始化项目数据时，将每个项目的 message 属性设置为空
+          this.favoriteProjects = response.data.map(project => ({
+            ...project,
+            message: '' // 每个项目独立的消息
+          }));
         })
         .catch(error => {
           console.error("获取收藏项目时出错: ", error);
@@ -67,24 +71,35 @@ export default {
         project_id: project.id
       })
       .then(() => {
+        // 过滤掉已取消收藏的项目
         this.favoriteProjects = this.favoriteProjects.filter(fav => fav.id !== project.id);
       })
       .catch(error => {
         console.error("取消收藏时出错: ", error);
       });
     },
-    joinProject(projectId) {
-      axios.post(`http://localhost:5000/projects/${projectId}/participate`, {}, {
+    joinProject(project) {
+      axios.post(`http://localhost:5000/projects/${project.id}/participate`, {}, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`
         }
       })
       .then(response => {
-        this.message = response.data.message; // 显示成功消息
+        // 仅更新当前项目的消息
+        project.message = response.data.message;
+        // 设置消息显示3秒后清除
+        setTimeout(() => {
+          project.message = '';
+        }, 3000);
       })
       .catch(error => {
         console.error("加入项目时出错: ", error);
-        this.message = error.response ? error.response.data.message : "网络错误";
+        // 显示错误消息
+        project.message = error.response ? error.response.data.message : "网络错误";
+        // 设置消息显示3秒后清除
+        setTimeout(() => {
+          project.message = '';
+        }, 3000);
       });
     }
   },
@@ -97,6 +112,7 @@ export default {
     this.fetchFavoriteProjects();
   }
 };
+
 </script>
 
 <style scoped>
@@ -205,6 +221,29 @@ h2 {
   line-height: 1.6;
 }
 
+.images-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.project-image {
+  width: 100%;
+  max-width: 150px;
+  height: auto;
+  object-fit: cover;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.project-image:hover {
+  transform: scale(1.1);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
 .button-container {
   display: flex;
   flex-direction: column;
@@ -267,6 +306,7 @@ h2 {
   from { opacity: 0; }
   to { opacity: 1; }
 }
+
 </style>
 
 
