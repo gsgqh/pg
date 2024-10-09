@@ -33,6 +33,7 @@ class Project(db.Model):
     username = db.Column(db.String(80), nullable=False)  # 当前创建项目的用户的用户名，不能为空
     major_type = db.Column(db.String(20))  # 专业类型
     category = db.Column(db.String(10))  # 项目类别
+    images = db.Column(db.JSON, nullable=True)  # 存储图片路径的JSON字段
 
     @staticmethod
     def search(keyword):
