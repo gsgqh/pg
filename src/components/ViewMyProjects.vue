@@ -6,6 +6,11 @@
         <h2 class="project-title">{{ project.title }}</h2>
         <p class="project-content">{{ project.content }}</p>
 
+        <!-- 添加项目图片显示 -->
+        <div class="images-container">
+          <img v-for="(image, index) in project.images" :key="index" :src="`${image}`" alt="项目图片" class="project-image" />
+        </div>
+
         <div v-if="project.participants && project.participants.length" class="participants">
           <h3 class="participant-title">参与者:</h3>
           <ul>
@@ -22,7 +27,7 @@
             </li>
           </ul>
 
-          <!-- 发布公告文本框和按钮 -->
+          发布公告文本框和按钮
           <div class="announce-container">
             <input 
               v-model="announcementMessage" 

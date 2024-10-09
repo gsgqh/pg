@@ -289,7 +289,8 @@ def search_projects():
             'nickname': nickname,
             'avatar': avatar,
             'major_type': project.major_type,
-            'category': project.category
+            'category': project.category,
+            'images': project.images
         })
 
     # 返回项目列表的 JSON 格式以及分页信息
@@ -376,6 +377,7 @@ def get_favorite_projects(user_id):
             'nickname': nickname,
             'avatar': avatar,
             'category': project.category,
+            'images': project.images
         })
 
     return jsonify(favorite_projects)
@@ -396,6 +398,7 @@ def my_projects():
         'content': project.content,
         'major_type': project.major_type,
         'category': project.category,
+        'images': project.images,
         'participants': [{
             'id': participation.id,
             'user_id': participation.user_id,
@@ -554,6 +557,7 @@ def get_my_participate_projects():
                 'avatar': creator.avatar,
                 'major_type': project.major_type,
                 'category': project.category,
+                'images': project.images,
                 'status': participation.status,  # 添加参与状态
                 'participants': [{
                     'id': p.id,

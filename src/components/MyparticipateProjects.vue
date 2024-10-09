@@ -5,7 +5,11 @@
       <li v-for="project in projects" :key="project.id" class="project-card">
         <h2 class="project-title">{{ project.title }}</h2>
         <p class="project-content">{{ project.content }}</p>
-  
+
+        <div class="images-container">
+          <img v-for="(image, index) in project.images" :key="index" :src="`${image}`" alt="项目图片" class="project-image" />
+        </div>
+        
         <!-- 项目创建者信息 -->
         <div class="creator-info">
           <span class="creator-title">项目创建者:</span>
