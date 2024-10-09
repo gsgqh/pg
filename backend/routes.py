@@ -107,8 +107,8 @@ def get_projects():
     page = request.args.get('page', 1, type=int)
     per_page = request.args.get('per_page', 10, type=int)
 
-    # 查询数据库中的所有项目，并进行分页
-    projects_query = Project.query.paginate(page=page, per_page=per_page)
+    # 查询数据库中的所有项目，并进行分页，按项目 ID 倒序排列
+    projects_query = Project.query.order_by(Project.id.desc()).paginate(page=page, per_page=per_page)
 
     # 为每个项目找到对应用户的 nickname
     project_list = []
@@ -136,6 +136,7 @@ def get_projects():
         'pages': projects_query.pages,
         'per_page': projects_query.per_page
     })
+
 
 # 获取当前用户信息接口，要求JWT认证
 @bp.route('/profile', methods=['GET'])
@@ -262,9 +263,9 @@ def search_projects():
             (Project.content.ilike(f'%{keyword}%'))
         )
 
-    # 获取符合条件的项目并进行分页
-    projects_query = query.paginate(page=page, per_page=per_page)
-
+    # 获取符合条件的项目并进行分页，按项目 ID 倒序排列
+    projects_query = query.order_by(Project.id.desc()).paginate(page=page, per_page=per_page)
+    
     # 构建响应数据
     project_list = []
     for project in projects_query.items:
@@ -282,6 +283,16 @@ def search_projects():
             'major_type': project.major_type,
             'category': project.category
         })
+
+    # 返回项目列表的 JSON 格式以及分页信息
+    return jsonify({
+        'projects': project_list,
+        'total': projects_query.total,
+        'page': projects_query.page,
+        'pages': projects_query.pages,
+        'per_page': projects_query.per_page
+    })
+
 
     # 返回项目列表的 JSON 格式以及分页信息
     return jsonify({
