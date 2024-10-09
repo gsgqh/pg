@@ -11,10 +11,12 @@
     </div>
 
     <div class="actions">
-      <button @click="toggleProjects">我的项目</button>
+      <button @click="toggleProjects">项目管理</button>
       <div v-if="showProjects" class="project-buttons">
-        <button @click="goToProjectManagement">项目管理</button>
-        <button @click="goToParticipatedProjects">参与的项目</button>
+        <div class="project-button-wrapper">
+          <button @click="goToProjectManagement" class="sub-action-button">创建的项目</button>
+          <button @click="goToParticipatedProjects" class="sub-action-button">参与的项目</button>
+        </div>
       </div>
       <button @click="goToFavorites">我的收藏</button>
       <button @click="goToMessages">我的消息{{ unreadCount > 0 ? ` (${unreadCount})` : '' }}</button>
@@ -129,14 +131,14 @@ export default {
 .actions {
   margin-top: 20px;
   display: flex;
-  flex-direction: column; /* 改为纵向排列 */
-  align-items: center; /* 确保按钮居中对齐 */
-  gap: 15px; /* 调整按钮之间的距离 */
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
 }
 
 .actions button {
   padding: 12px 20px;
-  width: 50%; /* 适当调整按钮的宽度，使其显得更大 */
+  width: 50%;
   border: none;
   border-radius: 8px;
   background: linear-gradient(135deg, #42b983, #3ca772);
@@ -151,8 +153,36 @@ export default {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
+
+.project-buttons {
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+}
+
+.project-button-wrapper {
+  display: flex;
+  gap: 20px;
+}
+
+.sub-action-button {
+  padding: 10px 24px;
+  width: auto;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #3498db, #2980b9);
+  color: #fff;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.sub-action-button:hover {
+  background: linear-gradient(135deg, #2980b9, #1f6391);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
 </style>
-
-
-
-
