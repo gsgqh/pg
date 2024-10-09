@@ -64,7 +64,7 @@ def login():
         # 用户不存在，返回相应消息
         return jsonify(message="User does not exist",success=False), 200  # 返回200状态码
 
-
+# 创建项目接口，接收POST请求
 @bp.route('/create-project', methods=['POST'])
 @jwt_required()
 def create_project():
@@ -85,12 +85,13 @@ def create_project():
     image_paths = []
     for image in images:
         filename = secure_filename(image.filename)
+        public_image_path = f'public/uploads/{filename}'  # 设置保存路径
         image_path = f'uploads/{filename}'  # 设置保存路径
         try:
-            image.save(image_path)
+            image.save(public_image_path)
             image_paths.append(image_path)
         except Exception as e:
-            return jsonify(message="上传图片失败: " + str(e), success=False), 500
+            return jsonify(message="上传图片失败: " + str(e), success=False), 200
 
     new_project = Project(
         title=data['title'],
@@ -106,6 +107,43 @@ def create_project():
 
     return jsonify(message="Project created", success=True), 201
 
+# 获取所有项目接口，接收GET请求
+@bp.route('/projects', methods=['GET'])
+def get_projects():
+    # 获取分页参数，默认为第1页，每页10个项目
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', 10, type=int)
+
+    # 查询数据库中的所有项目，并进行分页，按项目 ID 倒序排列
+    projects_query = Project.query.order_by(Project.id.desc()).paginate(page=page, per_page=per_page)
+
+    # 为每个项目找到对应用户的 nickname
+    project_list = []
+    for project in projects_query.items:
+        user = User.query.filter_by(username=project.username).first()
+        nickname = user.nickname if user else None
+        avatar = user.avatar if user else None
+
+        project_list.append({
+            'id': project.id,
+            'title': project.title,
+            'content': project.content,
+            'username': project.username,
+            'nickname': nickname,
+            'avatar': avatar,
+            'major_type': project.major_type,
+            'category': project.category,
+            'images': project.images  # 添加上传的图片路径
+        })
+
+    # 返回项目列表的 JSON 格式以及分页信息
+    return jsonify({
+        'projects': project_list,
+        'total': projects_query.total,
+        'page': projects_query.page,
+        'pages': projects_query.pages,
+        'per_page': projects_query.per_page
+    })
 
 
 # 获取当前用户信息接口，要求JWT认证
