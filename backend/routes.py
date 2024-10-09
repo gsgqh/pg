@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity
 from model import db, User, Project, Favorite, Participation, Message, ParticipationStatus
 import random
+from sqlalchemy import desc
 
 # 创建一个Blueprint用于组织路由
 bp = Blueprint('api', __name__)
@@ -481,7 +482,9 @@ def review_participation(participation_id):
 @jwt_required()
 def get_messages():
     current_user_id = get_jwt_identity()
-    messages = Message.query.filter_by(recipient_id=current_user_id).all()
+    # 按照时间戳倒序排列消息
+    messages = Message.query.filter_by(recipient_id=current_user_id).order_by(desc(Message.timestamp)).all()
+    
     return jsonify([{
         'id': message.id,
         'content': message.content,

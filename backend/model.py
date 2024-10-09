@@ -2,6 +2,7 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
+import pytz
 
 db = SQLAlchemy()
 
@@ -88,7 +89,7 @@ class ChatMessage(db.Model):
     sender_id = Column(Integer, ForeignKey('users.id'), nullable=False)
     recipient_id = Column(Integer, ForeignKey('users.id'), nullable=False)
     message = Column(String(500), nullable=False)
-    timestamp = Column(db.DateTime, default=datetime.now)
+    timestamp = db.Column(db.DateTime, default=lambda: datetime.now(pytz.timezone('Asia/Shanghai')))  # 时间戳设为上海时区
 
     sender = relationship('User', foreign_keys=[sender_id])
     recipient = relationship('User', foreign_keys=[recipient_id])
@@ -131,7 +132,7 @@ class Message(db.Model):
     recipient_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)  # 接收者ID
     content = db.Column(db.String(200), nullable=False)  # 消息内容
     is_read = db.Column(db.Boolean, default=False)  # 已读状态，默认为未读
-    timestamp = db.Column(db.DateTime, default=db.func.current_timestamp())  # 时间戳
+    timestamp = db.Column(db.DateTime, default=lambda: datetime.now(pytz.timezone('Asia/Shanghai')))  # 时间戳设为上海时区
 
     sender = db.relationship('User', foreign_keys=[sender_id])  # 发送者
     recipient = db.relationship('User', foreign_keys=[recipient_id])  # 接收者
