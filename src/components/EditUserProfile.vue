@@ -99,7 +99,7 @@ export default {
   methods: {
     async fetchUserProfile() {
       try {
-        const response = await axios.get('http://localhost:5000/edit-profile', {
+        const response = await axios.get('http://localhost:5000/profile', {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`
           }
