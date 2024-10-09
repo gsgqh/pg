@@ -98,6 +98,7 @@
         :key="page" 
         @click="goToPage(page)" 
         :class="{ active: page === currentPage }"
+        class="pagination-button"
       >
         {{ page }}
       </button>
@@ -470,11 +471,36 @@ h2 {
   animation: fadeIn 0.3s forwards;
 }
 
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.pagination-button {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 8px;
+  background-color: #3498db;
+  color: #fff;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.pagination-button:hover {
+  background-color: #2980b9;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.pagination-button.active {
+  background-color: #2c3e50;
+}
+
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
 }
 </style>
-
-
-

@@ -137,13 +137,14 @@ export default {
 }
 
 .actions button {
-  padding: 12px 20px;
-  width: 50%;
+  padding: 14px 24px;
+  width: 60%;
   border: none;
   border-radius: 8px;
   background: linear-gradient(135deg, #42b983, #3ca772);
   color: #fff;
-  font-size: 15px;
+  font-size: 16px;
+  font-weight: bold;
   cursor: pointer;
   transition: background-color 0.3s, transform 0.2s ease, box-shadow 0.2s ease;
 }
@@ -169,13 +170,14 @@ export default {
 }
 
 .sub-action-button {
-  padding: 10px 24px;
+  padding: 12px 28px;
   width: auto;
   border: none;
   border-radius: 8px;
   background: linear-gradient(135deg, #3498db, #2980b9);
   color: #fff;
-  font-size: 14px;
+  font-size: 15px;
+  font-weight: bold;
   cursor: pointer;
   transition: background-color 0.3s, transform 0.2s ease, box-shadow 0.2s ease;
 }
