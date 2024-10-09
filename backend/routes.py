@@ -102,31 +102,39 @@ def create_project():
 # 获取所有项目接口，接收GET请求
 @bp.route('/projects', methods=['GET'])
 def get_projects():
-    # 查询数据库中的所有项目
-    projects = Project.query.all()
+    # 获取分页参数，默认为第1页，每页10个项目
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', 10, type=int)
+
+    # 查询数据库中的所有项目，并进行分页
+    projects_query = Project.query.paginate(page=page, per_page=per_page)
 
     # 为每个项目找到对应用户的 nickname
     project_list = []
-    for project in projects:
-        # 通过 username 查询对应的 User 表中的 nickname
+    for project in projects_query.items:
         user = User.query.filter_by(username=project.username).first()
-        nickname = user.nickname if user else None  # 如果找不到用户，nickname 为 None
+        nickname = user.nickname if user else None
         avatar = user.avatar if user else None
 
-        # 构建项目和用户的 JSON 数据
         project_list.append({
             'id': project.id,
             'title': project.title,
             'content': project.content,
             'username': project.username,
-            'nickname': nickname,  # 添加 nickname 字段
+            'nickname': nickname,
             'avatar': avatar,
-            'major_type': project.major_type,  # 添加专业类型
-            'category': project.category  # 添加项目类别
+            'major_type': project.major_type,
+            'category': project.category
         })
 
-    # 返回项目列表的 JSON 格式
-    return jsonify(project_list)
+    # 返回项目列表的 JSON 格式以及分页信息
+    return jsonify({
+        'projects': project_list,
+        'total': projects_query.total,
+        'page': projects_query.page,
+        'pages': projects_query.pages,
+        'per_page': projects_query.per_page
+    })
 
 # 获取当前用户信息接口，要求JWT认证
 @bp.route('/profile', methods=['GET'])
@@ -148,7 +156,8 @@ def get_profile():
             'signature': user.signature,
             'school': user.school,
             'major': user.major,
-            'interests': user.interests
+            'interests': user.interests,
+            'avatar': user.avatar
         }), 200
     else:
         return jsonify({'error': 'User not found'}), 404
@@ -234,6 +243,8 @@ def search_projects():
     major_type = request.args.get('major_type')
     category = request.args.get('category')
     keyword = request.args.get('keyword')  # 新增搜索关键字参数
+    page = request.args.get('page', 1, type=int)  # 当前页
+    per_page = request.args.get('per_page', 10, type=int)  # 每页条数
 
     # 构建查询条件
     query = Project.query
@@ -250,18 +261,16 @@ def search_projects():
             (Project.content.ilike(f'%{keyword}%'))
         )
 
-    # 获取符合条件的所有项目
-    projects = query.all()
+    # 获取符合条件的项目并进行分页
+    projects_query = query.paginate(page=page, per_page=per_page)
 
     # 构建响应数据
     project_list = []
-    for project in projects:
-        # 通过 username 查询对应的 User 表中的 nickname
+    for project in projects_query.items:
         user = User.query.filter_by(username=project.username).first()
-        nickname = user.nickname if user else None  # 如果找不到用户，nickname 为 None
+        nickname = user.nickname if user else None
         avatar = user.avatar if user else None
 
-        # 构建项目和用户的 JSON 数据
         project_list.append({
             'id': project.id,
             'title': project.title,
@@ -269,12 +278,18 @@ def search_projects():
             'username': project.username,
             'nickname': nickname,
             'avatar': avatar,
-            'major_type': project.major_type,  # 添加专业类型
-            'category': project.category  # 添加项目类别
+            'major_type': project.major_type,
+            'category': project.category
         })
 
-    # 返回项目列表的 JSON 格式
-    return jsonify(project_list)
+    # 返回项目列表的 JSON 格式以及分页信息
+    return jsonify({
+        'projects': project_list,
+        'total': projects_query.total,
+        'page': projects_query.page,
+        'pages': projects_query.pages,
+        'per_page': projects_query.per_page
+    })
 
 # 收藏项目接口
 @bp.route('/projects/favorite', methods=['POST'])
@@ -570,6 +585,7 @@ def announce(project_id):
     db.session.commit()
     return jsonify({"message": "公告已成功发布"}), 200
 
+# 获取未读消息数接口
 @bp.route('/unread-count', methods=['GET'])
 @jwt_required()  # 确保用户登录
 def get_unread_message_count():
@@ -581,3 +597,4 @@ def get_unread_message_count():
     
     # 返回结果
     return jsonify({'unread_count': unread_count}), 200
+

@@ -40,6 +40,7 @@
       <button @click="searchProjects" class="search-button">搜索</button>
     </div>
 
+    <!-- 项目列表 -->
     <ul class="projects-list">
       <li v-for="project in projects" :key="project.id" class="project-card">
         <div class="project-header">
@@ -89,6 +90,18 @@
         <p v-if="project.message" class="message">{{ project.message }}</p>
       </li>
     </ul>
+
+    <!-- 分页组件 -->
+    <div class="pagination">
+      <button 
+        v-for="page in visiblePages" 
+        :key="page" 
+        @click="goToPage(page)" 
+        :class="{ active: page === currentPage }"
+      >
+        {{ page }}
+      </button>
+    </div>
   </div>
 </template>
 
@@ -104,43 +117,59 @@ export default {
       selectedCategory: '',
       selectedMajorType: '',
       searchKeyword: '',
-      userId: null,  // 初始化为 null
+      userId: null,
+      currentPage: 1,  // 当前页数
+      totalPages: 0,  // 总页数
+      visiblePages: []  // 可见的页码数组
     };
   },
   methods: {
     fetchProjects() {
-      axios.get('http://localhost:5000/projects').then(response => {
-        return axios.get(`http://localhost:5000/users/${this.userId}/favorites`).then(favoritesResponse => {
-          const favoriteIds = new Set(favoritesResponse.data.map(fav => fav.id));
-          this.projects = response.data.map(project => ({
-            ...project,
-            isFavorited: favoriteIds.has(project.id),
-            message: '',  // 为每个项目添加独立的 message 属性
-            creatorAvatar: project.avatar // 后端返回的项目数据中包含创建者的头像字段
-          }));
+      const params = {
+        page: this.currentPage  // 传递当前页码
+      };
+
+      axios.get('http://localhost:5000/projects', { params })
+        .then(response => {
+          return axios.get(`http://localhost:5000/users/${this.userId}/favorites`)
+            .then(favoritesResponse => {
+              const favoriteIds = new Set(favoritesResponse.data.map(fav => fav.id));
+              this.totalPages = response.data.pages;  // 设置总页数
+              this.projects = response.data.projects.map(project => ({
+                ...project,
+                isFavorited: favoriteIds.has(project.id),
+                message: '',  // 初始化 message 属性
+                creatorAvatar: project.avatar  // 处理头像数据
+              }));
+              this.updateVisiblePages();  // 更新可见的分页
+            });
+        })
+        .catch(error => {
+          console.error("获取项目时出错: ", error);
         });
-      }).catch(error => {
-        console.error("获取项目时出错: ", error);
-      });
     },
     searchProjects() {
       const params = {
         category: this.selectedCategory,
         major_type: this.selectedMajorType,
-        keyword: this.searchKeyword
+        keyword: this.searchKeyword,
+        page: this.currentPage,  // 确保分页参数一起发送
       };
 
       axios.get('http://localhost:5000/projects/search', { params })
         .then(response => {
-          return axios.get(`http://localhost:5000/users/${this.userId}/favorites`).then(favoritesResponse => {
-            const favoriteIds = new Set(favoritesResponse.data.map(fav => fav.id));
-            this.projects = response.data.map(project => ({
-              ...project,
-              isFavorited: favoriteIds.has(project.id),
-              message: '',  // 为每个项目添加独立的 message 属性
-              creatorAvatar: project.avatar // 后端返回的项目数据中包含创建者的头像字段
-            }));
-          });
+          return axios.get(`http://localhost:5000/users/${this.userId}/favorites`)
+            .then(favoritesResponse => {
+              const favoriteIds = new Set(favoritesResponse.data.map(fav => fav.id));
+              this.totalPages = response.data.pages;  // 设置总页数
+              this.projects = response.data.projects.map(project => ({
+                ...project,
+                isFavorited: favoriteIds.has(project.id),
+                message: '',
+                creatorAvatar: project.avatar
+              }));
+              this.updateVisiblePages();  // 更新分页
+            });
         })
         .catch(error => {
           console.error("搜索项目时出错: ", error);
@@ -155,40 +184,26 @@ export default {
       this.searchProjects();
     },
     toggleFavorite(project) {
-      if (project.isFavorited) {
-        axios.post('http://localhost:5000/projects/unfavorite', {
-          user_id: this.userId,
-          project_id: project.id
-        })
-        .then(() => {
-          project.isFavorited = false;
-        })
-        .catch(error => {
-          console.error("取消收藏时出错: ", error);
-        });
-      } else {
-        axios.post('http://localhost:5000/projects/favorite', {
-          user_id: this.userId,
-          project_id: project.id
-        })
-        .then(() => {
-          project.isFavorited = true;
-        })
-        .catch(error => {
-          console.error("收藏项目时出错: ", error);
-        });
-      }
+      const action = project.isFavorited ? 'unfavorite' : 'favorite';
+      axios.post(`http://localhost:5000/projects/${action}`, {
+        user_id: this.userId,
+        project_id: project.id
+      })
+      .then(() => {
+        project.isFavorited = !project.isFavorited;
+      })
+      .catch(error => {
+        console.error(`${project.isFavorited ? '取消收藏' : '收藏'}时出错: `, error);
+      });
     },
     joinProject(project) {
       axios.post(`http://localhost:5000/projects/${project.id}/participate`, {}, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}` // 使用 JWT 进行认证
+          Authorization: `Bearer ${localStorage.getItem('token')}`
         }
       })
       .then(response => {
-        project.message = response.data.message; // 显示后端返回的成功消息到具体的项目卡片中
-
-        // 3秒后清除消息
+        project.message = response.data.message;
         setTimeout(() => {
           project.message = '';
         }, 3000);
@@ -196,12 +211,32 @@ export default {
       .catch(error => {
         console.error("加入项目时出错: ", error);
         project.message = error.response ? error.response.data.message : "网络错误";
-
-        // 3秒后清除消息
         setTimeout(() => {
           project.message = '';
         }, 3000);
       });
+    },
+    goToPage(page) {
+      if (page === '...') return;  // 忽略省略号
+      this.currentPage = page;
+      this.searchProjects();
+    },
+    updateVisiblePages() {
+      // 确定要显示的页码，例如：1, ..., 5, 6, 7, ..., 9
+      let start = Math.max(1, this.currentPage - 1);
+      let end = Math.min(this.totalPages, this.currentPage + 1);
+
+      this.visiblePages = [];
+
+      if (start > 1) this.visiblePages.push(1);  // 总是显示第一页
+      if (start > 2) this.visiblePages.push('...');  // 添加省略号
+
+      for (let i = start; i <= end; i++) {
+        this.visiblePages.push(i);
+      }
+
+      if (end < this.totalPages - 1) this.visiblePages.push('...');  // 添加省略号
+      if (end < this.totalPages) this.visiblePages.push(this.totalPages);  // 总是显示最后一页
     }
   },
   watch: {
@@ -212,10 +247,9 @@ export default {
     const token = localStorage.getItem('token');
     if (token) {
       const decodedToken = jwtDecode(token);
-      this.userId = decodedToken.sub;  // 假设 sub 包含用户ID
+      this.userId = decodedToken.sub;  // 获取用户ID
     }
-
-    this.fetchProjects();  // 在组件挂载时获取项目数据
+    this.fetchProjects();  // 获取项目数据
   }
 };
 </script>
