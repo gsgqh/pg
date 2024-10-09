@@ -58,6 +58,7 @@
   </div>
 </template>
 
+
 <script>
 import axios from 'axios';
 
@@ -80,7 +81,13 @@ export default {
         { id: 1, file: '1.png' },
         { id: 2, file: '2.png' },
         { id: 3, file: '3.png' },
-        { id: 4, file: '4.png' }
+        { id: 4, file: '4.png' },
+        { id: 5, file: '5.png' },
+        { id: 6, file: '6.png' },
+        { id: 7, file: '7.png' },
+        { id: 8, file: '8.png' },
+        { id: 9, file: '9.png' },
+        { id: 10, file: '10.png' }
       ],
       showMessage: false,
       successMessage: ''
@@ -134,7 +141,7 @@ export default {
 
 <style scoped>
 .user-profile {
-  max-width: 600px;
+  max-width: 500px;
   margin: 50px auto;
   padding: 30px;
   background: linear-gradient(135deg, #e0f7fa, #ffffff);
@@ -153,20 +160,23 @@ h2 {
   text-align: center;
   font-size: 28px;
   color: #2c3e50;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .profile-form {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 15px;
+  align-items: center;
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  align-items: center;
+  gap: 5px;
+  width: 100%;
 }
 
 label {
@@ -176,8 +186,9 @@ label {
 }
 
 .input-field {
-  width: 100%;
-  padding: 12px;
+  width: 80%;
+  max-width: 400px;
+  padding: 10px;
   font-size: 14px;
   border: 1px solid #ccc;
   border-radius: 8px;
@@ -194,11 +205,13 @@ label {
 }
 
 textarea.input-field {
-  height: 120px;
+  height: 100px;
 }
 
 .save-button {
-  padding: 12px 20px;
+  width: 80%;
+  max-width: 400px;
+  padding: 12px;
   font-size: 16px;
   font-weight: bold;
   color: #fff;
@@ -221,30 +234,36 @@ textarea.input-field {
 
 .avatar-options {
   display: flex;
-  justify-content: space-around;
-  margin-bottom: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
 }
 
 .avatar {
-  width: 50px;
-  height: 50px;
+  width: 60px;
+  height: 60px;
   border-radius: 50%;
   cursor: pointer;
   border: 2px solid transparent;
-  transition: border 0.3s ease;
+  transition: border 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .avatar:hover {
   border-color: #3498db;
+  transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .avatar.selected {
   border-color: #42b983;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  transform: scale(1.1);
 }
 
 .custom-alert {
   position: fixed;
-  bottom: 20px; /* 改为页面底部 */
+  bottom: 20px;
   left: 50%;
   transform: translateX(-50%);
   background: #42b983;
@@ -261,3 +280,4 @@ textarea.input-field {
   10%, 90% { opacity: 1; }
 }
 </style>
+

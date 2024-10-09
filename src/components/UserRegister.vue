@@ -37,7 +37,6 @@
   </div>
 </template>
 
-
 <script>
 import axios from 'axios';
 
@@ -59,6 +58,12 @@ export default {
         { id: 2, file: '2.png' },
         { id: 3, file: '3.png' },
         { id: 4, file: '4.png' },
+        { id: 5, file: '5.png' },
+        { id: 6, file: '6.png' },
+        { id: 7, file: '7.png' },
+        { id: 8, file: '8.png' },
+        { id: 9, file: '9.png' },
+        { id: 10, file: '10.png' }
       ],
     };
   },
@@ -143,7 +148,7 @@ h2 {
 }
 
 .input-field {
-  width: 100%;
+  width: calc(100% - 24px); /* 确保与按钮对齐 */
   padding: 12px;
   font-size: 16px;
   border: 1px solid #ddd;
@@ -151,6 +156,7 @@ h2 {
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
   background-color: #fafafa;
+  margin: 0 auto; /* 保持居中 */
 }
 
 .input-field:focus {
@@ -195,7 +201,7 @@ h2 {
 }
 
 .register-button {
-  width: 100%;
+  width: calc(100% - 24px); /* 与输入框保持一致 */
   padding: 12px;
   background: linear-gradient(135deg, #42b983, #3ca772);
   color: white;
@@ -234,4 +240,3 @@ h2 {
   }
 }
 </style>
-

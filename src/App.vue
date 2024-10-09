@@ -3,22 +3,12 @@
     <header>
       <h1>PG</h1>
       <nav>
-        <!-- 仅在未登录时显示 注册 和 登录 -->
-        <router-link v-if="!isLoggedIn" to="/register">注册</router-link>
-        <router-link v-if="!isLoggedIn" to="/login">登录</router-link>
-
         <!-- 仅在已登录时显示其他导航项 -->
         <router-link v-if="isLoggedIn" to="/">主页</router-link>
         <router-link v-if="isLoggedIn" to="/create-project">创建项目</router-link>
         <router-link v-if="isLoggedIn" to="/projects">查看项目</router-link>
-        <router-link v-if="isLoggedIn" to="/users">查看用户</router-link>
         <router-link v-if="isLoggedIn" :to="`/user/${username}`">我的资料</router-link>
-        <router-link v-if="isLoggedIn" to="/edit-profile">编辑资料</router-link>
         <router-link v-if="isLoggedIn" to="/recent-chats">聊天</router-link>
-        <router-link v-if="isLoggedIn" to="/favorites" class="favorites-link">我的收藏</router-link>
-        <router-link v-if="isLoggedIn" to="/projects/my-projects" class="favorites-link">项目管理</router-link>
-        <router-link v-if="isLoggedIn" to="/messages" class="favorites-link">我的消息</router-link>
-        <router-link v-if="isLoggedIn" to="/my-participate-projects" class="favorites-link">参与的项目</router-link>
         <router-link v-if="isLoggedIn" :to="`/my-page/${username}`" class="favorites-link">我的</router-link>
         <button v-if="isLoggedIn" class="logout" @click="logout">退出登录</button>
       </nav>
@@ -28,7 +18,6 @@
     </main>
   </div>
 </template>
-
 
 <script>
 import axios from 'axios';
@@ -115,6 +104,18 @@ nav {
   gap: 15px;
   margin-right: 20px; /* 使导航项与右侧有些空隙 */
   overflow-x: auto; /* 内容太多时允许水平滚动 */
+  animation: slideIn 0.8s ease-in-out; /* 添加动态效果 */
+}
+
+@keyframes slideIn {
+  0% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
 
 nav a {
@@ -122,11 +123,12 @@ nav a {
   text-decoration: none;
   padding: 5px 10px;
   font-size: 16px;
-  transition: color 0.3s ease;
+  transition: color 0.3s ease, transform 0.3s ease;
 }
 
 nav a:hover {
   color: #c9f1db;
+  transform: scale(1.1);
 }
 
 .logout {
@@ -136,11 +138,12 @@ nav a:hover {
   font-size: 16px;
   cursor: pointer;
   padding: 5px 10px;
-  transition: color 0.3s ease;
+  transition: color 0.3s ease, transform 0.3s ease;
 }
 
 .logout:hover {
   color: #c9f1db;
+  transform: scale(1.1);
 }
 
 /* 主体内容 */
@@ -170,4 +173,3 @@ main {
   }
 }
 </style>
-
