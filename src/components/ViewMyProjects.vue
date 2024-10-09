@@ -211,13 +211,34 @@ export default {
   margin-bottom: 20px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   transition: box-shadow 0.3s ease, transform 0.3s ease;
-  backdrop-filter: blur(10px); /* 添加模糊背景效果 */
-  position: relative;
 }
 
 .project-card:hover {
   box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
   transform: translateY(-5px);
+}
+
+.images-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.project-image {
+  width: 100%;
+  max-width: 150px;
+  height: auto;
+  object-fit: cover;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.project-image:hover {
+  transform: scale(1.1);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
 }
 
 .participants {
@@ -228,7 +249,6 @@ export default {
   font-size: 16px;
   color: #2c3e50;
   margin-bottom: 10px;
-  text-align: left;
   font-weight: bold;
 }
 
@@ -291,7 +311,7 @@ export default {
 .delete-container {
   display: flex;
   align-items: center;
-  justify-content: center; /* 居中对齐 */
+  justify-content: center;
   gap: 10px;
   margin-top: 10px;
 }
@@ -425,6 +445,11 @@ export default {
   transform: translateY(-2px);
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
+
+body::-webkit-scrollbar {
+  width: 0;
+}
+
 
 </style>
 

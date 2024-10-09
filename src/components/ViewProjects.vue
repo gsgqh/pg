@@ -400,6 +400,29 @@ h2 {
   line-height: 1.6;
 }
 
+.images-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.project-image {
+  width: 100%;
+  max-width: 150px;
+  height: auto;
+  object-fit: cover;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.project-image:hover {
+  transform: scale(1.1);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
 .button-container {
   display: flex;
   flex-direction: column;
@@ -508,4 +531,5 @@ h2 {
   from { opacity: 0; }
   to { opacity: 1; }
 }
+
 </style>
