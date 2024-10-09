@@ -37,6 +37,7 @@
   </div>
 </template>
 
+
 <script>
 import axios from 'axios';
 
@@ -116,17 +117,25 @@ export default {
 .register-container {
   max-width: 400px;
   margin: 50px auto;
-  padding: 20px;
-  background-color: #fff;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  padding: 30px;
+  background: linear-gradient(135deg, #e0f7fa, #ffffff);
+  border-radius: 15px;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
   text-align: center;
+  font-family: 'Arial', sans-serif;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.register-container:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
 }
 
 h2 {
-  font-size: 24px;
-  color: #333;
+  font-size: 28px;
+  color: #2c3e50;
   margin-bottom: 20px;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .input-group {
@@ -135,17 +144,20 @@ h2 {
 
 .input-field {
   width: 100%;
-  padding: 10px;
+  padding: 12px;
   font-size: 16px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  box-sizing: border-box;
-  transition: border 0.3s ease;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  background-color: #fafafa;
 }
 
 .input-field:focus {
-  border-color: #3498db;
+  border-color: #42b983;
+  box-shadow: 0 0 8px rgba(66, 185, 131, 0.3);
   outline: none;
+  background-color: #ffffff;
 }
 
 .avatar-selection {
@@ -154,46 +166,72 @@ h2 {
 
 .avatar-options {
   display: flex;
-  justify-content: space-around;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
   margin-bottom: 10px;
 }
 
 .avatar {
-  width: 50px;
-  height: 50px;
+  width: 60px;
+  height: 60px;
   border-radius: 50%;
   cursor: pointer;
-  border: 2px solid transparent;
-  transition: border 0.3s ease;
+  border: 3px solid transparent;
+  transition: border-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .avatar:hover {
   border-color: #3498db;
+  transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .selected {
   border-color: #42b983;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  transform: scale(1.1);
 }
 
 .register-button {
   width: 100%;
   padding: 12px;
-  background-color: #42b983;
+  background: linear-gradient(135deg, #42b983, #3ca772);
   color: white;
   font-size: 16px;
   border: none;
-  border-radius: 5px;
+  border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  font-weight: bold;
+  margin-top: 10px;
 }
 
 .register-button:hover {
-  background-color: #3ca772;
+  background: linear-gradient(135deg, #3ca772, #3498db);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .error-message {
-  color: red;
+  color: #e74c3c;
   margin-top: 5px;
   font-size: 14px;
+  background: #fdecea;
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 </style>
+

@@ -7,7 +7,7 @@
         <p class="project-content">{{ project.content }}</p>
 
         <div v-if="project.participants && project.participants.length" class="participants">
-          <h3>参与者:</h3>
+          <h3 class="participant-title">参与者:</h3>
           <ul>
             <li v-for="participant in project.participants" :key="participant.id" class="participant-item">
               <div class="participant-info">
@@ -58,6 +58,7 @@
     </div>
   </div>
 </template>
+
 
 <script>
 import axios from 'axios';
@@ -178,9 +179,9 @@ export default {
   margin: 0 auto;
   padding: 20px;
   font-family: 'Arial', sans-serif;
-  background-color: #f9f9f9;
-  border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(135deg, #e0f7fa, #ffffff);
+  border-radius: 15px;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
   transition: box-shadow 0.3s ease, transform 0.3s ease;
 }
 
@@ -189,6 +190,7 @@ export default {
   font-size: 28px;
   color: #2c3e50;
   margin-bottom: 20px;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .projects-list {
@@ -198,18 +200,87 @@ export default {
 
 .project-card {
   padding: 20px;
-  background-color: #fff;
+  background: rgba(255, 255, 255, 0.8);
   border: 1px solid #ddd;
-  border-radius: 8px;
+  border-radius: 12px;
   margin-bottom: 20px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   transition: box-shadow 0.3s ease, transform 0.3s ease;
+  backdrop-filter: blur(10px); /* 添加模糊背景效果 */
   position: relative;
 }
 
 .project-card:hover {
   box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
   transform: translateY(-5px);
+}
+
+.participants {
+  margin-top: 15px;
+}
+
+.participant-title {
+  font-size: 16px;
+  color: #2c3e50;
+  margin-bottom: 10px;
+  text-align: left;
+  font-weight: bold;
+}
+
+.participant-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(240, 248, 255, 0.6);
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.participant-info {
+  flex: 1;
+  text-align: center;
+  font-size: 14px;
+  color: #2c3e50;
+}
+
+.review-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.approve-button, .reject-button {
+  background-color: #27ae60;
+  color: #fff;
+  padding: 8px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+  font-size: 14px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.reject-button {
+  background-color: #e74c3c;
+}
+
+.approve-button:hover {
+  background-color: #2ecc71;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.reject-button:hover {
+  background-color: #e57373;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.approve-button:active, .reject-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .delete-container {
@@ -267,10 +338,10 @@ export default {
 }
 
 .confirm-dialog {
-  background: #fff;
+  background: #ffffff;
   padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
   text-align: center;
   max-width: 400px;
   margin: 0 auto;
@@ -293,7 +364,7 @@ export default {
   color: #fff;
   border: none;
   padding: 10px 20px;
-  border-radius: 5px;
+  border-radius: 8px;
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
@@ -307,7 +378,7 @@ export default {
   color: #fff;
   border: none;
   padding: 10px 20px;
-  border-radius: 5px;
+  border-radius: 8px;
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
@@ -322,24 +393,33 @@ export default {
 
 .announcement-input {
   width: 70%;
-  padding: 5px;
+  padding: 8px;
   margin-right: 10px;
   border: 1px solid #ccc;
   border-radius: 5px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.announcement-input:focus {
+  border-color: #3498db;
+  box-shadow: 0 0 8px rgba(52, 152, 219, 0.3);
 }
 
 .announce-button {
   background-color: #27ae60;
   color: #fff;
-  padding: 5px 10px;
+  padding: 8px 15px;
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: background-color 0.3s, transform 0.2s ease;
 }
 
 .announce-button:hover {
   background-color: #219150;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
+
 </style>
 

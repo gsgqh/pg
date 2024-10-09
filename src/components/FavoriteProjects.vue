@@ -3,12 +3,12 @@
     <h2>我的收藏项目</h2>
     <ul class="favorites-list">
       <li v-for="project in favoriteProjects" :key="project.id" class="project-card">
-        <p class="project-created-by">
+        <div class="project-created-by">
           <router-link :to="'/user/' + project.username" class="project-link">
             <img :src="project.avatar ? `/assets/${project.avatar}` : 'default-avatar.png'" alt="创建者头像" class="creator-avatar" />
-            {{ project.nickname }}
+            <span>{{ project.nickname }}</span>
           </router-link>
-        </p>
+        </div>
         <h3 class="project-title">{{ project.title }}</h3>
         <p class="project-content">{{ project.content }}</p>
 
@@ -32,6 +32,7 @@
     </ul>
   </div>
 </template>
+
 
 <script>
 import axios from 'axios';
@@ -154,6 +155,7 @@ h2 {
   color: #7f8c8d;
   display: flex;
   align-items: center;
+  gap: 10px;
   margin-bottom: 10px;
 }
 
@@ -161,7 +163,6 @@ h2 {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  margin-right: 10px;
   object-fit: cover;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease;
@@ -172,6 +173,9 @@ h2 {
 }
 
 .project-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   font-size: 16px;
   color: #3498db;
   text-decoration: none;
@@ -260,4 +264,5 @@ h2 {
   to { opacity: 1; }
 }
 </style>
+
 
