@@ -54,6 +54,11 @@
         <h3 class="project-title">{{ project.title }}</h3>
         <p class="project-content">{{ project.content }}</p>
 
+        <!-- 显示上传的图片 -->
+        <div class="images-container">
+          <img v-for="(image, index) in project.images" :key="index" :src="`${image}`" alt="项目图片" class="project-image" />
+        </div>
+
         <div class="button-container">
           <button 
             @click="joinProject(project)" 

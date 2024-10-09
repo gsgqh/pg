@@ -42,6 +42,15 @@
         <option>艺术学</option>
       </select>
 
+      <input
+        type="file"
+        @change="handleFileUpload"
+        multiple
+        accept="image/*"
+        class="input-field"
+      />
+      <p class="info-text">最多上传 9 张图片</p>
+
       <button @click="createProject" class="create-button" :disabled="isDisabled">创建项目</button>
 
       <p v-if="successMessage" class="success-message">{{ successMessage }}</p>
@@ -49,7 +58,6 @@
     </div>
   </div>
 </template>
-
 
 <script>
 import axios from 'axios';
@@ -64,20 +72,21 @@ export default {
       majorType: '',
       successMessage: '',
       errorMessage: '',
-      maxTitleLength: 50,   // 最大标题长度
-      maxContentLength: 500 // 最大内容长度
+      maxTitleLength: 50,
+      maxContentLength: 500,
+      selectedFiles: []  // 存储选中的文件
     };
   },
   computed: {
     isDisabled() {
-      // 如果任一输入框为空或超出字符限制，则禁用按钮
       return (
         !this.projectTitle ||
         this.projectTitle.length > this.maxTitleLength ||
         !this.projectContent ||
         this.projectContent.length > this.maxContentLength ||
         !this.projectCategory ||
-        !this.majorType
+        !this.majorType ||
+        (this.selectedFiles.length > 9)  // 限制图片数量
       );
     }
   },
@@ -92,17 +101,27 @@ export default {
         this.projectContent = this.projectContent.slice(0, this.maxContentLength);
       }
     },
+    handleFileUpload(event) {
+      this.selectedFiles = Array.from(event.target.files).slice(0, 9);  // 获取最多9张图片
+    },
     createProject() {
       this.successMessage = '';
       this.errorMessage = '';
 
-      axios.post('http://localhost:5000/create-project', {
-        title: this.projectTitle,
-        content: this.projectContent,
-        category: this.projectCategory,
-        major_type: this.majorType
-      }, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      const formData = new FormData();
+      formData.append('title', this.projectTitle);
+      formData.append('content', this.projectContent);
+      formData.append('category', this.projectCategory);
+      formData.append('major_type', this.majorType);
+      this.selectedFiles.forEach(file => {
+        formData.append('images', file);
+      });
+
+      axios.post('http://localhost:5000/create-project', formData, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'multipart/form-data'
+        }
       })
       .then(response => {
         if (response.data.success) {
@@ -125,6 +144,7 @@ export default {
   }
 };
 </script>
+
 
 <style scoped>
 .create-project-container {

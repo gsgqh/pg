@@ -3,7 +3,7 @@ from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identi
 from model import db, User, Project, Favorite, Participation, Message, ParticipationStatus
 import random
 from sqlalchemy import desc
-
+from werkzeug.utils import secure_filename
 # 创建一个Blueprint用于组织路由
 bp = Blueprint('api', __name__)
 
@@ -64,41 +64,48 @@ def login():
         # 用户不存在，返回相应消息
         return jsonify(message="User does not exist",success=False), 200  # 返回200状态码
 
-
-# 创建项目接口，接收POST请求，要求JWT认证
+# 创建项目接口，接收POST请求
 @bp.route('/create-project', methods=['POST'])
-@jwt_required()  # 该路由需要JWT令牌验证
+@jwt_required()
 def create_project():
-    data = request.get_json()  # 获取请求体中的JSON数据
-
-    # 检查标题和内容是否为空
-    if not data.get('title') or not data.get('content') or not data.get('major_type') or not data.get('category'):
-        return jsonify(message="Title, content, major_type, or category cannot be empty", success=False), 200  # 返回200状态码
-
-    # 获取当前用户的身份信息
-    current_user_id = get_jwt_identity()
+    images = request.files.getlist('images')  # 获取上传的图片文件
+    data = request.form  # 改为从 form 获取数据
     
-    # 查询当前用户以获取用户名
+    if len(images) > 9:
+        return jsonify(message="最多上传9张图片", success=False), 200
+
+    if not data.get('title') or not data.get('content') or not data.get('major_type') or not data.get('category'):
+        return jsonify(message="Title, content, major_type, or category cannot be empty", success=False), 200
+
+    current_user_id = get_jwt_identity()
     user = User.query.get(current_user_id)
     if not user:
-        return jsonify(message="User not found",success = False), 200  # 如果找不到用户，返回200
+        return jsonify(message="User not found", success=False), 200
 
-    # 创建新项目对象，保存用户名
+    image_paths = []
+    for image in images:
+        filename = secure_filename(image.filename)
+        public_image_path = f'public/uploads/{filename}'  # 设置保存路径
+        image_path = f'uploads/{filename}'  # 设置保存路径
+        try:
+            image.save(public_image_path)
+            image_paths.append(image_path)
+        except Exception as e:
+            return jsonify(message="上传图片失败: " + str(e), success=False), 200
+
     new_project = Project(
-        title=data['title'], 
-        content=data['content'], 
+        title=data['title'],
+        content=data['content'],
         username=user.username,
         major_type=data['major_type'],
-        category=data['category']
+        category=data['category'],
+        images=image_paths  # 确保 Project 模型中有这个字段
     )
-    
-    # 将新项目添加到数据库会话
+
     db.session.add(new_project)
-    # 提交会话，保存项目到数据库
     db.session.commit()
-    
-    # 返回成功信息和状态码201
-    return jsonify(message="Project created", success = True), 201
+
+    return jsonify(message="Project created", success=True), 201
 
 # 获取所有项目接口，接收GET请求
 @bp.route('/projects', methods=['GET'])
@@ -125,7 +132,8 @@ def get_projects():
             'nickname': nickname,
             'avatar': avatar,
             'major_type': project.major_type,
-            'category': project.category
+            'category': project.category,
+            'images': project.images  # 添加上传的图片路径
         })
 
     # 返回项目列表的 JSON 格式以及分页信息
@@ -281,7 +289,8 @@ def search_projects():
             'nickname': nickname,
             'avatar': avatar,
             'major_type': project.major_type,
-            'category': project.category
+            'category': project.category,
+            'images': project.images
         })
 
     # 返回项目列表的 JSON 格式以及分页信息
@@ -368,6 +377,7 @@ def get_favorite_projects(user_id):
             'nickname': nickname,
             'avatar': avatar,
             'category': project.category,
+            'images': project.images
         })
 
     return jsonify(favorite_projects)
@@ -388,6 +398,7 @@ def my_projects():
         'content': project.content,
         'major_type': project.major_type,
         'category': project.category,
+        'images': project.images,
         'participants': [{
             'id': participation.id,
             'user_id': participation.user_id,
@@ -546,6 +557,7 @@ def get_my_participate_projects():
                 'avatar': creator.avatar,
                 'major_type': project.major_type,
                 'category': project.category,
+                'images': project.images,
                 'status': participation.status,  # 添加参与状态
                 'participants': [{
                     'id': p.id,
