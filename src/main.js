@@ -15,6 +15,7 @@ import FavoriteProjects from './components/FavoriteProjects.vue';
 import ViewMyProjects from './components/ViewMyProjects.vue';
 import MyMessage from './components/MyMessage.vue';
 import MyparticipateProjects from './components/MyparticipateProjects.vue';
+import MyPage from './components/MyPage.vue';
 
 // 定义路由
 const routes = [
@@ -32,7 +33,7 @@ const routes = [
   { path: '/projects/my-projects', component: ViewMyProjects }, // 新增查看自己发布的项目的路由
   { path: '/messages', component: MyMessage},
   { path: '/my-participate-projects', component: MyparticipateProjects},
-  
+  { path: '/my-page/:username', component: MyPage},
 ];
 
 // 创建路由实例

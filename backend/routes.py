@@ -569,3 +569,15 @@ def announce(project_id):
 
     db.session.commit()
     return jsonify({"message": "公告已成功发布"}), 200
+
+@bp.route('/unread-count', methods=['GET'])
+@jwt_required()  # 确保用户登录
+def get_unread_message_count():
+    # 获取当前用户的ID
+    user_id = get_jwt_identity()
+    
+    # 查询当前用户的未读消息数
+    unread_count = Message.query.filter_by(recipient_id=user_id, is_read=False).count()
+    
+    # 返回结果
+    return jsonify({'unread_count': unread_count}), 200
