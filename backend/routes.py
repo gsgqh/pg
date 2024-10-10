@@ -101,7 +101,8 @@ def create_project():
         username=user.username,
         major_type=data['major_type'],
         category=data['category'],
-        images=image_paths  # 确保 Project 模型中有这个字段
+        images=image_paths,  # 确保 Project 模型中有这个字段
+        status=Project.STATUS_RECRUITING
     )
 
     db.session.add(new_project)
@@ -135,7 +136,8 @@ def get_projects():
             'avatar': avatar,
             'major_type': project.major_type,
             'category': project.category,
-            'images': project.images  # 添加上传的图片路径
+            'images': project.images,  # 添加上传的图片路径
+            'status': project.status
         })
 
     # 返回项目列表的 JSON 格式以及分页信息
@@ -292,7 +294,8 @@ def search_projects():
             'avatar': avatar,
             'major_type': project.major_type,
             'category': project.category,
-            'images': project.images
+            'images': project.images,
+            'status': project.status
         })
 
     # 返回项目列表的 JSON 格式以及分页信息
@@ -379,7 +382,8 @@ def get_favorite_projects(user_id):
             'nickname': nickname,
             'avatar': avatar,
             'category': project.category,
-            'images': project.images
+            'images': project.images,
+            'status': project.status
         })
 
     return jsonify(favorite_projects)
@@ -401,6 +405,7 @@ def my_projects():
         'major_type': project.major_type,
         'category': project.category,
         'images': project.images,
+        'status': project.status,
         'participants': [{
             'id': participation.id,
             'user_id': participation.user_id,
@@ -444,6 +449,9 @@ def participate_project(project_id):
 
     if project.username == username:
         return jsonify({"message": "您不能参与自己创建的项目"}), 400
+    
+    if project.status != project.STATUS_RECRUITING:
+        return jsonify({"message": "您不能参与已经进行或者结束的项目"}), 400
     
     existing_participation = Participation.query.filter_by(
         project_id=project.id,
@@ -560,6 +568,7 @@ def get_my_participate_projects():
                 'major_type': project.major_type,
                 'category': project.category,
                 'images': project.images,
+                'status': project.status,  # 添加项目状态
                 'status': participation.status,  # 添加参与状态
                 'participants': [{
                     'id': p.id,
@@ -626,7 +635,6 @@ def get_unread_message_count():
     # 返回结果
     return jsonify({'unread_count': unread_count}), 200
 
-# 编辑项目接口
 @bp.route('/edit-project/<int:project_id>', methods=['PUT'])
 @jwt_required()  # 需要用户登录
 def edit_project(project_id):
@@ -648,14 +656,21 @@ def edit_project(project_id):
     data = request.json
     new_title = data.get('title')
     new_content = data.get('content')
+    new_status = data.get('status')  # 新增状态字段
     print(new_title)
+
     # 验证必填字段
     if not new_title or not new_content:
         return jsonify(message="标题和内容不能为空", success=False), 200
 
-    # 更新项目的标题和内容
+    # 验证项目状态字段（可选）
+    if new_status not in ["招募中", "进行中", "已结束"]:  # 确保状态值合法
+        return jsonify(message="项目状态无效", success=False), 200
+
+    # 更新项目的标题、内容和状态
     project.title = new_title
     project.content = new_content
+    project.status = new_status  # 更新状态
 
     # 提交更改到数据库
     db.session.commit()
@@ -663,5 +678,6 @@ def edit_project(project_id):
     return jsonify(message="项目更新成功", project={
         'id': project.id,
         'title': project.title,
-        'content': project.content
+        'content': project.content,
+        'status': project.status  # 返回更新后的状态
     }, success=True), 200

@@ -9,7 +9,9 @@
         <div v-if="!project.isEditing">
           <h2 class="project-title">{{ project.title }}</h2>
           <p class="project-content">{{ project.content }}</p>
-          <button @click="editProject(project)" class="edit-button">编辑</button>
+          <p class="project-status">状态: {{ project.status }}</p> <!-- 显示项目状态 -->
+          <button @click="editProject(project)" class="edit-button" :disabled="hasPendingParticipants(project)" >编辑</button>
+          <span v-if="hasPendingParticipants(project)" class="info-icon" title="请先处理当前的申请。">ℹ️</span>
         </div>
 
         <div v-else>
@@ -23,6 +25,28 @@
             class="edit-content-input" 
             placeholder="编辑内容"
           ></textarea>
+          
+          <div class="review-buttons">
+            <button 
+              @click="updateStatus(project, '招募中')" 
+              :class="{ 'active': project.status === '招募中' }"
+            >
+              招募中
+            </button>
+            <button 
+              @click="updateStatus(project, '进行中')" 
+              :class="{ 'active': project.status === '进行中' }"
+            >
+              进行中
+            </button>
+            <button 
+              @click="updateStatus(project, '已结束')" 
+              :class="{ 'active': project.status === '已结束' }"
+            >
+              已结束
+            </button>
+          </div>
+          
           <button @click="submitEdit(project)" class="submit-button">提交</button>
         </div>
 
@@ -43,6 +67,7 @@
           <img :src="project.currentImage" class="image-viewer" alt="查看图片" />
         </div>
 
+        <!-- 参与者和公告部分... -->
         <div v-if="project.participants && project.participants.length" class="participants">
           <h3 class="participant-title">参与者:</h3>
           <ul>
@@ -68,7 +93,7 @@
             <button @click="publishAnnouncement(project.id)" class="announce-button">发布公告</button>
           </div>
         </div>
-
+        
         <div class="delete-container">
           <button 
             @click="confirmDelete(project.id)" 
@@ -129,13 +154,19 @@ export default {
       }
     },
     editProject(project) {
+      // 检查是否有待审核的参与者
+      if (this.hasPendingParticipants(project)) {
+        alert('请先处理当前的申请。');
+        return;
+      }
       project.isEditing = true;  // 切换到编辑模式
     },
     async submitEdit(project) {
       try {
         const response = await axios.put(`http://localhost:5000/edit-project/${project.id}`, {
           title: project.title,
-          content: project.content
+          content: project.content,
+          status: project.status // 发送状态
         }, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`
@@ -152,6 +183,13 @@ export default {
         alert('更新项目失败！');
         console.error('更新项目失败:', error);
       }
+    },
+    updateStatus(project, newStatus) {
+      project.status = newStatus; // 更新状态
+    },
+    hasPendingParticipants(project) {
+      // 检查是否有参与者的状态为待审核
+      return project.participants && project.participants.some(participant => participant.status === '待审核');
     },
     viewImage(project, image) {
       project.currentImage = image; // 设置当前项目的图片
@@ -598,6 +636,47 @@ body::-webkit-scrollbar {
   border-radius: 10px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
   transition: transform 0.3s ease;
+}
+
+.review-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 15px; /* 增加按钮组与提交按钮之间的间距 */
+}
+
+.review-buttons button {
+  background-color: #27ae60;
+  color: #fff;
+  padding: 8px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+  font-size: 14px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.review-buttons .reject-button {
+  background-color: #e74c3c;
+}
+
+.review-buttons button.active {
+  background-color: #2ecc71; /* 激活状态的按钮颜色 */
+}
+
+.edit-button[disabled] {
+  background-color: #bdc3c7;
+  cursor: not-allowed;
+}
+
+.edit-button:hover:not([disabled]) {
+  background-color: #c0392b;
+  transform: translateY(-2px);
+}
+
+.submit-button {
+  margin-top: 10px; /* 增加提交按钮的顶部边距 */
 }
 
 </style>

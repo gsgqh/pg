@@ -28,6 +28,10 @@
           />
         </div>
 
+        <!-- 项目状态 -->
+        <p class="project-status">状态: {{ project.status }}</p> <!-- 新增项目状态 -->
+
+
         <div class="button-container">
           <button @click="joinProject(project)" class="join-button">加入项目</button>
           <button @click="toggleFavorite(project)" class="favorite-button" :class="{ favorited: project.isFavorited }">取消收藏</button>

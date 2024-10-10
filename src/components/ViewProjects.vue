@@ -68,6 +68,9 @@
             @click="viewImage(project, image)" 
           />
         </div>
+        
+        <!-- 项目状态 -->
+        <p class="project-status">状态: {{ project.status }}</p> <!-- 新增项目状态 -->
 
         <!-- 图片查看器弹窗 -->
         <div v-if="project.showImageViewer" class="image-viewer-overlay" @click="closeImageViewer(project)">

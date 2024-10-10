@@ -34,6 +34,12 @@ class Project(db.Model):
     major_type = db.Column(db.String(20))  # 专业类型
     category = db.Column(db.String(10))  # 项目类别
     images = db.Column(db.JSON, nullable=True)  # 存储图片路径的JSON字段
+    status = db.Column(db.String(20), nullable=False)  # 项目状态，不能为空
+    
+    # 定义项目状态常量
+    STATUS_RECRUITING = "招募中"
+    STATUS_IN_PROGRESS = "进行中"
+    STATUS_ENDED = "已结束"
 
     @staticmethod
     def search(keyword):
