@@ -5,7 +5,7 @@
   <div class="profile-card" v-if="user">
     <div class="profile-header">
       <router-link :to="`/user/${user.username}`">
-        <img :src="user.avatar ? `/assets/${user.avatar}` : defaultAvatar" alt="用户头像" class="profile-avatar" />
+        <img :src="user.avatar ? require(`@/assets/${user.avatar}`) : defaultAvatar" alt="用户头像" class="profile-avatar" />
       </router-link>
       <router-link :to="`/user/${user.username}`">
         <h2 class="profile-username">用户名: {{ user.username }}</h2>

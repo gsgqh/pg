@@ -43,7 +43,7 @@
           <img
             v-for="avatar in avatars"
             :key="avatar.id"
-            :src="`/assets/${avatar.file}`"
+            :src="require(`@/assets/${avatar.file}`)"
             :alt="`头像 ${avatar.id}`"
             class="avatar"
             :class="{ selected: selectedAvatar === avatar.file }"

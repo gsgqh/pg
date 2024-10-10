@@ -31,7 +31,7 @@
         <div class="creator-info">
           <span class="creator-title">项目创建者:</span>
           <router-link :to="'/user/' + project.nickname" class="creator-link">
-            <img :src="project.avatar ? `/assets/${project.avatar}` : 'default-avatar.png'" alt="创建者头像" class="creator-avatar" />
+            <img :src="project.avatar ? require(`@/assets/${project.avatar}`) : 'default-avatar.png'" alt="创建者头像" class="creator-avatar" />
             <span>{{ project.nickname }}</span>
           </router-link>
         </div>
@@ -43,7 +43,7 @@
             <li v-for="participant in project.participants" :key="participant.id" class="participant-item">
               <div class="participant-info">
                 <router-link :to="'/user/' + participant.username" class="participant-link">
-                  <img :src="participant.avatar ? `/assets/${participant.avatar}` : 'default-avatar.png'" alt="参加者头像" class="creator-avatar" />
+                  <img :src="participant.avatar ? require(`@/assets/${participant.avatar}`) : 'default-avatar.png'" alt="参加者头像" class="creator-avatar" />
                   <span>{{ participant.nickname }}</span>
                 </router-link>
                 <span class="participant-status">- 状态: {{ participant.status }}</span>

@@ -5,7 +5,7 @@
   <div v-if="user" class="profile-card">
     <div class="profile-header">
       <!-- 显示用户头像，如果没有头像则显示默认头像 -->
-      <img :src="user.avatar ? `/assets/${user.avatar}` : defaultAvatar" alt="用户头像" class="profile-avatar" />
+      <img :src="user.avatar ? require(`@/assets/${user.avatar}`) : defaultAvatar" alt="用户头像" class="profile-avatar" />
       <h2 class="profile-username">{{ user.username }}</h2>
     </div>
     <div class="profile-info">
