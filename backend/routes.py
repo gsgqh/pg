@@ -86,9 +86,11 @@ def create_project():
     for image in images:
         filename = secure_filename(image.filename)
         public_image_path = f'public/uploads/{filename}'  # 设置保存路径
+        dist_image_path = f'dist/uploads/{filename}'  # 设置保存路径
         image_path = f'uploads/{filename}'  # 设置保存路径
         try:
-            image.save(public_image_path)
+            #image.save(public_image_path)
+            image.save(dist_image_path)
             image_paths.append(image_path)
         except Exception as e:
             return jsonify(message="上传图片失败: " + str(e), success=False), 200

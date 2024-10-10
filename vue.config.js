@@ -1,9 +1,15 @@
 const { defineConfig } = require('@vue/cli-service')
-module.exports = {
+// module.exports = {
+//   publicPath: './',  // 使用相对路径
+//   outputDir: 'dist', // 输出目录
+//   productionSourceMap: false, // 生产环境不生成 source map
+// }
+module.exports = defineConfig({
+  transpileDependencies: true,
   publicPath: './',  // 使用相对路径
   outputDir: 'dist', // 输出目录
   productionSourceMap: false, // 生产环境不生成 source map
-}
+})
 // module.exports = {
 //   devServer: {
 //     proxy: {

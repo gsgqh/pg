@@ -1,6 +1,6 @@
 import { createApp } from 'vue'; // 使用 Vue 3 的 import 方式
 import App from './App.vue';
-import { createRouter, createWebHistory } from 'vue-router'; // 从 'vue-router' 导入 createRouter 和 createWebHistory
+import { createRouter, createWebHashHistory } from 'vue-router'; // 从 'vue-router' 导入 createRouter 和 createWebHistory
 import UserRegister from './components/UserRegister.vue';
 import UserLogin from './components/UserLogin.vue';
 import CreateProject from './components/CreateProject.vue';
@@ -38,7 +38,7 @@ const routes = [
 
 // 创建路由实例
 const router = createRouter({
-  history: createWebHistory(), // 使用 HTML5 history 模式
+  history: createWebHashHistory(), // 使用 HTML5 history 模式
   routes
 });
 
