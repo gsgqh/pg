@@ -1,7 +1,7 @@
 <template>
-    <!-- 背景容器 -->
-    <div class="particles-background"></div>
-    
+  <!-- 背景容器 -->
+  <div class="particles-background"></div>
+
   <div class="projects-container">
     <h1 class="title">项目管理</h1>
     <ul class="projects-list">
@@ -28,7 +28,19 @@
 
         <!-- 添加项目图片显示 -->
         <div class="images-container">
-          <img v-for="(image, index) in project.images" :key="index" :src="`${image}`" alt="项目图片" class="project-image" />
+          <img 
+            v-for="(image, index) in project.images" 
+            :key="index" 
+            :src="`${image}`" 
+            alt="项目图片" 
+            class="project-image" 
+            @click="viewImage(project, image)"
+          />
+        </div>
+
+        <!-- 图片查看器弹窗 -->
+        <div v-if="project.showImageViewer" class="image-viewer-overlay" @click="closeImageViewer(project)">
+          <img :src="project.currentImage" class="image-viewer" alt="查看图片" />
         </div>
 
         <div v-if="project.participants && project.participants.length" class="participants">
@@ -82,6 +94,7 @@
   </div>
 </template>
 
+
 <script>
 import axios from 'axios';
 
@@ -107,7 +120,9 @@ export default {
         });
         this.projects = response.data.map(project => ({
           ...project,
-          isEditing: false  // 新增字段，用于控制编辑状态
+          isEditing: false, // 新增字段，用于控制编辑状态
+          showImageViewer: false, // 新增字段，用于控制图片查看器状态
+          currentImage: '' // 新增字段，用于存储当前查看的图片
         }));
       } catch (error) {
         console.error('获取项目失败:', error);
@@ -137,6 +152,14 @@ export default {
         alert('更新项目失败！');
         console.error('更新项目失败:', error);
       }
+    },
+    viewImage(project, image) {
+      project.currentImage = image; // 设置当前项目的图片
+      project.showImageViewer = true; // 显示该项目的图片查看器
+    },
+    closeImageViewer(project) {
+      project.showImageViewer = false; // 关闭该项目的图片查看器
+      project.currentImage = ''; // 清空当前图片
     },
     confirmDelete(projectId) {
       const project = this.projects.find(p => p.id === projectId);
@@ -554,6 +577,27 @@ body::-webkit-scrollbar {
 
 .edit-button:hover {
   background-color: #287fa7;
+}
+
+.image-viewer-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.image-viewer {
+  max-width: 90%;
+  max-height: 90%;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  transition: transform 0.3s ease;
 }
 
 </style>

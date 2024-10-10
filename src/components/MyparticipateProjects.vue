@@ -18,13 +18,13 @@
             :src="image" 
             alt="项目图片" 
             class="project-image"
-            @click="viewImage(image)"
+            @click="viewImage(project, image)"
           />
         </div>
         
         <!-- 图片查看器弹窗 -->
-        <div v-if="showImageViewer" class="image-viewer-overlay" @click="closeImageViewer">
-          <img :src="currentImage" class="image-viewer" alt="查看图片" />
+        <div v-if="project.showImageViewer" class="image-viewer-overlay" @click="closeImageViewer(project)">
+          <img :src="project.currentImage" class="image-viewer" alt="查看图片" />
         </div>
 
         <!-- 项目创建者信息 -->
@@ -65,9 +65,7 @@ import axios from 'axios';
 export default {
   data() {
     return {
-      projects: [],
-      showImageViewer: false, // 控制图片查看器的显示
-      currentImage: '' // 当前查看的图片 URL
+      projects: [], // 项目列表
     };
   },
   created() {
@@ -81,18 +79,24 @@ export default {
             Authorization: `Bearer ${localStorage.getItem('token')}`
           }
         });
-        this.projects = response.data;
+
+        // 为每个项目添加状态管理属性
+        this.projects = response.data.map(project => ({
+          ...project,
+          showImageViewer: false, // 初始化图片查看器状态
+          currentImage: '' // 初始化当前图片
+        }));
       } catch (error) {
         console.error('获取项目失败:', error);
       }
     },
-    viewImage(image) {
-      this.currentImage = image;
-      this.showImageViewer = true;
+    viewImage(project, image) {
+      project.currentImage = image; // 设置当前项目的图片
+      project.showImageViewer = true; // 显示该项目的图片查看器
     },
-    closeImageViewer() {
-      this.showImageViewer = false;
-      this.currentImage = '';
+    closeImageViewer(project) {
+      project.showImageViewer = false; // 关闭该项目的图片查看器
+      project.currentImage = ''; // 清空当前图片
     }
   }
 };

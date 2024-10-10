@@ -9,7 +9,7 @@
       <li v-for="project in favoriteProjects" :key="project.id" class="project-card">
         <div class="project-created-by">
           <router-link :to="'/user/' + project.username" class="project-link">
-            <img :src="project.avatar ? `/assets/${project.avatar}` : 'default-avatar.png'" alt="创建者头像" class="creator-avatar" />
+            <img :src="project.avatar ? require(`@/assets/${project.avatar}`) : 'default-avatar.png'" alt="创建者头像" class="creator-avatar" />
             <span>{{ project.nickname }}</span>
           </router-link>
         </div>

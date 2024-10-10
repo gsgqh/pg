@@ -1,4 +1,8 @@
 <template>
+  <!-- 背景容器 -->
+  <div class="particles-background"></div>
+
+  <!-- 项目列表容器 -->
   <div class="projects-container">
     <h2>项目列表</h2>
 
@@ -44,7 +48,6 @@
     <ul class="projects-list">
       <li v-for="project in projects" :key="project.id" class="project-card">
         <div class="project-header">
-          <!-- 显示创建者头像 -->
           <img :src="project.creatorAvatar ? require(`@/assets/${project.creatorAvatar}`) : 'default-avatar.png'" alt="创建者头像" class="creator-avatar" />
           <router-link :to="'/user/' + project.username" class="project-link">
             {{ project.nickname }}
@@ -56,42 +59,38 @@
 
         <!-- 显示上传的图片 -->
         <div class="images-container">
-          <img v-for="(image, index) in project.images" :key="index" :src="`${image}`" alt="项目图片" class="project-image" />
+          <img 
+            v-for="(image, index) in project.images" 
+            :key="index" 
+            :src="image" 
+            alt="项目图片" 
+            class="project-image"
+            @click="viewImage(project, image)" 
+          />
         </div>
 
-        <div class="button-container">
-          <button 
-            @click="joinProject(project)" 
-            class="join-button"
-          >
-            加入项目
-          </button>
+        <!-- 图片查看器弹窗 -->
+        <div v-if="project.showImageViewer" class="image-viewer-overlay" @click="closeImageViewer(project)">
+          <img :src="project.currentImage" class="image-viewer" alt="查看图片" />
+        </div>
 
-          <button 
-            @click="toggleFavorite(project)" 
-            class="favorite-button" 
-            :class="{ favorited: project.isFavorited }"
-          >
+
+        <div class="button-container">
+          <button @click="joinProject(project)" class="join-button">加入项目</button>
+          <button @click="toggleFavorite(project)" class="favorite-button" :class="{ favorited: project.isFavorited }">
             {{ project.isFavorited ? '取消收藏' : '收藏' }}
           </button>
         </div>
 
         <div class="tag-container">
-          <div 
-            class="project-type" 
-            @click="selectCategory(project.category)"
-          >
+          <div class="project-type" @click="selectCategory(project.category)">
             {{ project.category }}
           </div>
-          <div 
-            class="professional-type" 
-            @click="selectMajorType(project.major_type)"
-          >
+          <div class="professional-type" @click="selectMajorType(project.major_type)">
             {{ project.major_type }}
           </div>
         </div>
 
-        <!-- 显示加入项目后的消息 -->
         <p v-if="project.message" class="message">{{ project.message }}</p>
       </li>
     </ul>
@@ -111,6 +110,7 @@
   </div>
 </template>
 
+
 <script>
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
@@ -126,10 +126,20 @@ export default {
       userId: null,
       currentPage: 1,  // 当前页数
       totalPages: 0,  // 总页数
-      visiblePages: []  // 可见的页码数组
+      visiblePages: [] , // 可见的页码数组
+      showImageViewer: false, // 控制图片查看器的显示
+      currentImage: '' // 当前查看的图片 URL
     };
   },
   methods: {
+  viewImage(project, image) {
+    project.currentImage = image; // 设置当前项目的图片
+    project.showImageViewer = true; // 显示该项目的图片查看器
+  },
+  closeImageViewer(project) {
+    project.showImageViewer = false; // 关闭该项目的图片查看器
+    project.currentImage = ''; // 清空当前图片
+  },
     fetchProjects() {
       const params = {
         page: this.currentPage  // 传递当前页码
@@ -145,7 +155,9 @@ export default {
                 ...project,
                 isFavorited: favoriteIds.has(project.id),
                 message: '',  // 初始化 message 属性
-                creatorAvatar: project.avatar  // 处理头像数据
+                creatorAvatar: project.avatar,  // 处理头像数据
+                showImageViewer: false, // 初始化图片查看器状态
+                currentImage: '' // 初始化当前图片
               }));
               this.updateVisiblePages();  // 更新可见的分页
             });
@@ -172,7 +184,9 @@ export default {
                 ...project,
                 isFavorited: favoriteIds.has(project.id),
                 message: '',
-                creatorAvatar: project.avatar
+                creatorAvatar: project.avatar,
+                showImageViewer: false, // 初始化图片查看器状态
+                currentImage: '' // 初始化当前图片
               }));
               this.updateVisiblePages();  // 更新分页
             });
@@ -263,6 +277,31 @@ export default {
 
 
 <style scoped>
+/* 粒子背景样式 */
+.particles-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(-45deg, #1e3c72, #2a5298, #e8f5e9, #ffffff);
+  background-size: 400% 400%;
+  animation: gradientAnimation 15s ease infinite;
+  z-index: -1; /* 确保背景在所有内容的后面 */
+}
+
+@keyframes gradientAnimation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
 .projects-container {
   max-width: 900px;
   margin: 0 auto;
@@ -272,6 +311,8 @@ export default {
   border-radius: 15px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   transition: box-shadow 0.3s ease, transform 0.3s ease;
+  position: relative;
+  z-index: 1;
 }
 
 h2 {
@@ -530,6 +571,27 @@ h2 {
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
+}
+
+.image-viewer-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.image-viewer {
+  max-width: 90%;
+  max-height: 90%;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  transition: transform 0.3s ease;
 }
 
 </style>
