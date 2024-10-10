@@ -16,10 +16,10 @@
       <textarea
         v-model="projectContent"
         @input="checkContentLength"
-        placeholder="项目内容 (最多 500 字符)"
+        placeholder="项目内容 (最多 2000 字符)"
         class="input-field textarea-field"
       ></textarea>
-      <p class="char-count">{{ projectContent.length }}/500</p>
+      <p class="char-count">{{ projectContent.length }}/2000</p>
 
       <select v-model="projectCategory" class="input-field select-category">
         <option disabled value="">请选择项目类别</option>
