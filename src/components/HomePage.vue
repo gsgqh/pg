@@ -18,7 +18,7 @@ export default {
     // 3秒后自动隐藏欢迎界面并导航到登录界面
     setTimeout(() => {
       this.skipWelcome();
-    }, 3000);
+    }, 10000);
   },
   methods: {
     skipWelcome() {

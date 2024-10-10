@@ -1,4 +1,8 @@
 <template>
+  <!-- 背景容器 -->
+  <div class="particles-background"></div>
+
+  <!-- 聊天容器 -->
   <div id="chat">
     <h2 class="chat-header">与 {{ recipientNickname }} 聊天</h2>
     <div class="messages" ref="messages">
@@ -11,7 +15,6 @@
           'received': message.sender_nickname !== senderNickname
         }"
       >
-        <!-- 如果消息与上一条消息的时间差超过5分钟，则显示时间戳 -->
         <div v-if="shouldShowTimestamp(index)" class="timestamp">
           {{ formatDate(message.timestamp) }}
         </div>
@@ -31,6 +34,7 @@
     </div>
   </div>
 </template>
+
 
 <script>
 import { io } from 'socket.io-client';
@@ -139,16 +143,43 @@ export default {
 </script>
 
 <style scoped>
+/* 粒子背景样式 */
+.particles-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(-45deg, #1e3c72, #2a5298, #e8f5e9, #ffffff);
+  background-size: 400% 400%;
+  animation: gradientAnimation 15s ease infinite;
+  z-index: -1; /* 确保背景在所有内容的后面 */
+}
+
+@keyframes gradientAnimation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
 #chat {
   max-width: 600px;
   margin: 0 auto;
   padding: 0 20px 20px;
   border: 1px solid #ddd;
   border-radius: 10px;
-  background-color: #f9f9f9;
+  background-color: rgba(255, 255, 255, 0.8);
   display: flex;
   flex-direction: column;
   height: 80vh;
+  position: relative;
+  z-index: 1; /* 确保聊天内容在背景之上 */
 }
 
 .chat-header {
@@ -244,3 +275,4 @@ export default {
   background-color: #3ca772;
 }
 </style>
+

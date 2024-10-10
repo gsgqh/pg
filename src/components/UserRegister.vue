@@ -1,4 +1,7 @@
 <template>
+    <!-- 背景容器 -->
+    <div class="particles-background"></div>
+
   <div class="register-container">
     <h2>用户注册</h2>
     <div class="input-group">
@@ -119,6 +122,31 @@ export default {
 </script>
 
 <style scoped>
+/* 粒子背景样式 */
+.particles-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(-45deg, #1e3c72, #2a5298, #e8f5e9, #ffffff);
+  background-size: 400% 400%;
+  animation: gradientAnimation 15s ease infinite;
+  z-index: -1; /* 确保背景在所有内容的后面 */
+}
+
+@keyframes gradientAnimation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
 .register-container {
   max-width: 400px;
   margin: 50px auto;
@@ -129,6 +157,8 @@ export default {
   text-align: center;
   font-family: 'Arial', sans-serif;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+  z-index: 1; /* 确保内容在背景上方 */
 }
 
 .register-container:hover {

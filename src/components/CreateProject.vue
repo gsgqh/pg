@@ -1,4 +1,7 @@
 <template>
+  <!-- 背景容器 -->
+  <div class="particles-background"></div>
+
   <div class="create-project-container">
     <h2 class="create-project-title">创建新项目</h2>
     <div class="form-container">
@@ -149,6 +152,31 @@ export default {
 
 
 <style scoped>
+/* 粒子背景样式 */
+.particles-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(-45deg, #1e3c72, #2a5298, #e8f5e9, #ffffff);
+  background-size: 400% 400%;
+  animation: gradientAnimation 15s ease infinite;
+  z-index: -1; /* 确保背景在所有内容的后面 */
+}
+
+@keyframes gradientAnimation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
 .create-project-container {
   max-width: 600px;
   margin: 50px auto;
@@ -157,6 +185,8 @@ export default {
   border-radius: 12px;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
   font-family: 'Arial', sans-serif;
+  position: relative;
+  z-index: 1; /* 确保内容在背景上方 */
 }
 
 .create-project-title {

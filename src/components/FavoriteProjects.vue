@@ -1,4 +1,8 @@
 <template>
+  <!-- 背景容器 -->
+  <div class="particles-background"></div>
+
+  <!-- 收藏项目容器 -->
   <div class="favorites-container">
     <h2>我的收藏项目</h2>
     <ul class="favorites-list">
@@ -12,31 +16,32 @@
         <h3 class="project-title">{{ project.title }}</h3>
         <p class="project-content">{{ project.content }}</p>
 
+        <!-- 项目图片容器，点击图片查看大图 -->
         <div class="images-container">
-          <img v-for="(image, index) in project.images" :key="index" :src="`${image}`" alt="项目图片" class="project-image" />
+          <img 
+            v-for="(image, index) in project.images" 
+            :key="index" 
+            :src="image" 
+            alt="项目图片" 
+            class="project-image"
+            @click="viewImage(image)"
+          />
         </div>
 
         <div class="button-container">
-          <button 
-            @click="joinProject(project)" 
-            class="join-button"
-          >
-            加入项目
-          </button>
-          <button 
-            @click="toggleFavorite(project)" 
-            class="favorite-button" 
-            :class="{ favorited: project.isFavorited }"
-          >
-            取消收藏
-          </button>
+          <button @click="joinProject(project)" class="join-button">加入项目</button>
+          <button @click="toggleFavorite(project)" class="favorite-button" :class="{ favorited: project.isFavorited }">取消收藏</button>
         </div>
         <p v-if="project.message" class="message">{{ project.message }}</p>
       </li>
     </ul>
+
+    <!-- 图片查看器弹窗 -->
+    <div v-if="showImageViewer" class="image-viewer-overlay" @click="closeImageViewer">
+      <img :src="currentImage" class="image-viewer" alt="查看图片" />
+    </div>
   </div>
 </template>
-
 
 
 <script>
@@ -48,22 +53,31 @@ export default {
   data() {
     return {
       favoriteProjects: [],
-      userId: null
+      userId: null,
+      showImageViewer: false, // 控制图片查看器的显示
+      currentImage: '' // 当前查看的图片 URL
     };
   },
   methods: {
     fetchFavoriteProjects() {
       axios.get(`http://localhost:5000/users/${this.userId}/favorites`)
         .then(response => {
-          // 初始化项目数据时，将每个项目的 message 属性设置为空
           this.favoriteProjects = response.data.map(project => ({
             ...project,
-            message: '' // 每个项目独立的消息
+            message: '' // 初始化 message 属性
           }));
         })
         .catch(error => {
           console.error("获取收藏项目时出错: ", error);
         });
+    },
+    viewImage(image) {
+      this.currentImage = image;
+      this.showImageViewer = true;
+    },
+    closeImageViewer() {
+      this.showImageViewer = false;
+      this.currentImage = '';
     },
     toggleFavorite(project) {
       axios.post('http://localhost:5000/projects/unfavorite', {
@@ -71,7 +85,6 @@ export default {
         project_id: project.id
       })
       .then(() => {
-        // 过滤掉已取消收藏的项目
         this.favoriteProjects = this.favoriteProjects.filter(fav => fav.id !== project.id);
       })
       .catch(error => {
@@ -85,18 +98,14 @@ export default {
         }
       })
       .then(response => {
-        // 仅更新当前项目的消息
         project.message = response.data.message;
-        // 设置消息显示3秒后清除
         setTimeout(() => {
           project.message = '';
         }, 3000);
       })
       .catch(error => {
         console.error("加入项目时出错: ", error);
-        // 显示错误消息
         project.message = error.response ? error.response.data.message : "网络错误";
-        // 设置消息显示3秒后清除
         setTimeout(() => {
           project.message = '';
         }, 3000);
@@ -112,24 +121,47 @@ export default {
     this.fetchFavoriteProjects();
   }
 };
-
 </script>
 
+
 <style scoped>
+/* 粒子背景样式 */
+.particles-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(-45deg, #1e3c72, #2a5298, #e8f5e9, #ffffff);
+  background-size: 400% 400%;
+  animation: gradientAnimation 15s ease infinite;
+  z-index: -1; /* 确保背景在所有内容的后面 */
+}
+
+@keyframes gradientAnimation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* 收藏项目容器样式 */
 .favorites-container {
   max-width: 900px;
   margin: 0 auto;
   padding: 30px;
-  background: linear-gradient(135deg, #e0f7fa, #ffffff);
+  background: rgba(255, 255, 255, 0.8);
   border-radius: 15px;
   box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
   font-family: 'Arial', sans-serif;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.favorites-container:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  position: relative;
+  z-index: 1;
 }
 
 h2 {
@@ -137,7 +169,6 @@ h2 {
   font-size: 28px;
   color: #2c3e50;
   margin-bottom: 30px;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .favorites-list {
@@ -151,16 +182,10 @@ h2 {
   padding: 20px;
   border-radius: 12px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  position: relative;
   transition: box-shadow 0.3s ease, transform 0.3s ease;
   opacity: 0;
   transform: translateY(20px);
   animation: fadeInUp 0.5s forwards;
-}
-
-.project-card:hover {
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-  transform: translateY(-5px);
 }
 
 @keyframes fadeInUp {
@@ -170,9 +195,7 @@ h2 {
   }
 }
 
-.project-created-by {
-  font-size: 14px;
-  color: #7f8c8d;
+.project-header {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -184,7 +207,6 @@ h2 {
   height: 40px;
   border-radius: 50%;
   object-fit: cover;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease;
 }
 
@@ -200,7 +222,6 @@ h2 {
   color: #3498db;
   text-decoration: none;
   font-weight: bold;
-  transition: color 0.3s ease;
 }
 
 .project-link:hover {
@@ -211,14 +232,13 @@ h2 {
 .project-title {
   font-size: 22px;
   color: #2c3e50;
-  margin: 0 0 10px;
+  margin-bottom: 10px;
 }
 
 .project-content {
   font-size: 16px;
   color: #34495e;
   margin-bottom: 15px;
-  line-height: 1.6;
 }
 
 .images-container {
@@ -236,12 +256,31 @@ h2 {
   object-fit: cover;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition: transform 0.3s ease;
 }
 
 .project-image:hover {
   transform: scale(1.1);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.image-viewer-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.image-viewer {
+  max-width: 90%;
+  max-height: 90%;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
 }
 
 .button-container {
@@ -249,28 +288,20 @@ h2 {
   flex-direction: column;
   align-items: flex-end;
   gap: 10px;
-  margin-top: 10px;
 }
 
-.join-button, .favorite-button {
+.join-button,
+.favorite-button {
   padding: 10px 20px;
-  font-size: 14px;
   border: none;
   border-radius: 8px;
+  font-size: 14px;
   cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
-  font-weight: bold;
 }
 
 .join-button {
   background: linear-gradient(135deg, #42b983, #3ca772);
   color: #fff;
-}
-
-.join-button:hover {
-  background: linear-gradient(135deg, #3ca772, #3498db);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .favorite-button {
@@ -283,30 +314,11 @@ h2 {
   color: #fff;
 }
 
-.favorite-button:hover {
-  background: linear-gradient(135deg, #95a5a6, #7f8c8d);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-}
-
 .message {
   margin-top: 10px;
-  color: #2c3e50;
   background-color: #e0f7fa;
   padding: 10px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
   text-align: center;
-  font-weight: bold;
-  opacity: 0;
-  animation: fadeIn 0.3s forwards;
 }
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
 </style>
-
-

@@ -1,4 +1,7 @@
 <template>
+    <!-- 背景容器 -->
+    <div class="particles-background"></div>
+
     <div class="messages-container">
       <h1 class="messages-title">我的消息</h1>
       <div v-if="messages.length === 0" class="no-messages">暂无消息</div>
@@ -60,6 +63,31 @@ export default {
   </script>
   
   <style scoped>
+  /* 粒子背景样式 */
+.particles-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(-45deg, #1e3c72, #2a5298, #e8f5e9, #ffffff);
+  background-size: 400% 400%;
+  animation: gradientAnimation 15s ease infinite;
+  z-index: -1; /* 确保背景在所有内容的后面 */
+}
+
+@keyframes gradientAnimation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
   .messages-container {
     display: flex;
     flex-direction: column;
@@ -69,6 +97,8 @@ export default {
     min-height: 100vh;
     box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
     font-family: 'Arial', sans-serif;
+    position: relative;
+    z-index: 1; /* 确保内容在背景上方 */
   }
   
   .messages-title {
