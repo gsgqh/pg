@@ -1,4 +1,8 @@
 <template>
+  <!-- 背景容器 -->
+  <div class="particles-background"></div>
+
+  <!-- 项目列表容器 -->
   <div class="projects-container">
     <h1 class="title">参与的项目</h1>
     <ul class="projects-list">
@@ -6,10 +10,23 @@
         <h2 class="project-title">{{ project.title }}</h2>
         <p class="project-content">{{ project.content }}</p>
 
+        <!-- 项目图片容器，点击图片查看大图 -->
         <div class="images-container">
-          <img v-for="(image, index) in project.images" :key="index" :src="`${image}`" alt="项目图片" class="project-image" />
+          <img 
+            v-for="(image, index) in project.images" 
+            :key="index" 
+            :src="image" 
+            alt="项目图片" 
+            class="project-image"
+            @click="viewImage(image)"
+          />
         </div>
         
+        <!-- 图片查看器弹窗 -->
+        <div v-if="showImageViewer" class="image-viewer-overlay" @click="closeImageViewer">
+          <img :src="currentImage" class="image-viewer" alt="查看图片" />
+        </div>
+
         <!-- 项目创建者信息 -->
         <div class="creator-info">
           <span class="creator-title">项目创建者:</span>
@@ -40,37 +57,73 @@
 </template>
 
 
+
   
-  <script>
-  import axios from 'axios';
-  
-  export default {
-    data() {
-      return {
-        projects: []
-      };
-    },
-    created() {
-      this.fetchProjects();
-    },
-    methods: {
-      async fetchProjects() {
-        try {
-          const response = await axios.get('http://localhost:5000/my-participate-projects', {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem('token')}`
-            }
-          });
-          this.projects = response.data;
-        } catch (error) {
-          console.error('获取项目失败:', error);
-        }
+<script>
+import axios from 'axios';
+
+export default {
+  data() {
+    return {
+      projects: [],
+      showImageViewer: false, // 控制图片查看器的显示
+      currentImage: '' // 当前查看的图片 URL
+    };
+  },
+  created() {
+    this.fetchProjects();
+  },
+  methods: {
+    async fetchProjects() {
+      try {
+        const response = await axios.get('http://localhost:5000/my-participate-projects', {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+        this.projects = response.data;
+      } catch (error) {
+        console.error('获取项目失败:', error);
       }
+    },
+    viewImage(image) {
+      this.currentImage = image;
+      this.showImageViewer = true;
+    },
+    closeImageViewer() {
+      this.showImageViewer = false;
+      this.currentImage = '';
     }
-  };
-  </script>
+  }
+};
+</script>
+
   
   <style scoped>
+  .particles-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(-45deg, #1e3c72, #2a5298, #e8f5e9, #ffffff);
+  background-size: 400% 400%;
+  animation: gradientAnimation 15s ease infinite;
+  z-index: -1; /* 确保背景在所有内容的后面 */
+}
+
+@keyframes gradientAnimation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
 .projects-container {
   max-width: 800px;
   margin: 0 auto;
@@ -79,7 +132,9 @@
   border-radius: 15px;
   box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
   font-family: 'Arial', sans-serif;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;  
+  position: relative;
+  z-index: 1;
 }
 
 .projects-container:hover {
@@ -235,6 +290,27 @@ body::-webkit-scrollbar {
   width: 0;
 }
 
+/* 图片查看器样式 */
+.image-viewer-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.image-viewer {
+  max-width: 90%;
+  max-height: 90%;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  transition: transform 0.3s ease;
+}
 </style>
 
   

@@ -1,4 +1,7 @@
 <template>
+    <!-- 背景容器 -->
+    <div class="particles-background"></div>
+
   <div v-if="user" class="profile-card">
     <div class="profile-header">
       <!-- 显示用户头像，如果没有头像则显示默认头像 -->
@@ -73,6 +76,43 @@ export default {
 </script>
 
 <style scoped>
+/* 粒子背景样式 */
+.particles-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(-45deg, #1e3c72, #2a5298, #e8f5e9, #ffffff);
+  background-size: 400% 400%;
+  animation: gradientAnimation 15s ease infinite;
+  z-index: -1; /* 确保背景在所有内容的后面 */
+}
+
+@keyframes gradientAnimation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.create-project-container {
+  max-width: 600px;
+  margin: 50px auto;
+  padding: 30px;
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 12px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  font-family: 'Arial', sans-serif;
+  position: relative;
+  z-index: 1; /* 确保内容在背景上方 */
+}
+
 .profile-card {
   max-width: 600px;
   margin: auto;
@@ -80,6 +120,8 @@ export default {
   background-color: #fff;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  position: relative;
+  z-index: 1; /* 确保内容在背景上方 */
 }
 .profile-header {
   display: flex;
