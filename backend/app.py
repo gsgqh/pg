@@ -28,7 +28,7 @@ socketio.init_app(app)
 if __name__ == '__main__':
     # 在应用程序上下文中创建数据库表
     with app.app_context():
-        db.drop_all() # 删除数据库表
+        #db.drop_all() # 删除数据库表
         db.create_all()  # 创建数据库表
     # 启动应用程序，开启调试模式
     socketio.run(app)

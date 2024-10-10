@@ -40,7 +40,7 @@ def register():
     db.session.commit()
 
     # 返回成功信息和状态码201
-    return jsonify(message="User created", success=True), 201
+    return jsonify(message="用户创建成功", success=True), 201
 
 
 # 登录接口，接收POST请求
@@ -59,10 +59,10 @@ def login():
             return jsonify(access_token=access_token,success=True), 200  # 返回200状态码
         else:
             # 密码错误，返回相应消息
-            return jsonify(message="Incorrect password",success=False), 200  # 返回200状态码
+            return jsonify(message="密码错误",success=False), 200  # 返回200状态码
     else:
         # 用户不存在，返回相应消息
-        return jsonify(message="User does not exist",success=False), 200  # 返回200状态码
+        return jsonify(message="用户不存在",success=False), 200  # 返回200状态码
 
 # 创建项目接口，接收POST请求
 @bp.route('/create-project', methods=['POST'])
@@ -105,7 +105,7 @@ def create_project():
     db.session.add(new_project)
     db.session.commit()
 
-    return jsonify(message="Project created", success=True), 201
+    return jsonify(message="项目创建成功", success=True), 201
 
 # 获取所有项目接口，接收GET请求
 @bp.route('/projects', methods=['GET'])
@@ -242,7 +242,7 @@ def edit_user_profile():
         # 提交更改到数据库
         db.session.commit()
 
-        return jsonify({'message': 'Profile updated successfully'})
+        return jsonify({'message': '个人信息编辑成功'})
     else:
         return jsonify({'error': 'User not found'}), 404
 
@@ -624,3 +624,42 @@ def get_unread_message_count():
     # 返回结果
     return jsonify({'unread_count': unread_count}), 200
 
+# 编辑项目接口
+@bp.route('/edit-project/<int:project_id>', methods=['PUT'])
+@jwt_required()  # 需要用户登录
+def edit_project(project_id):
+    # 获取当前登录用户的用户名
+    current_user = get_jwt_identity()
+    user = User.query.filter_by(id=current_user).first()  
+
+    # 从数据库查询要编辑的项目
+    project = Project.query.filter_by(id=project_id).first()
+
+    if not project:
+        return jsonify(message="项目不存在", success=False), 200
+
+    # 检查当前用户是否是项目的创建者
+    if project.username != user.username:
+        return jsonify(message="你无权编辑此项目", success=False), 200
+
+    # 获取请求数据
+    data = request.json
+    new_title = data.get('title')
+    new_content = data.get('content')
+    print(new_title)
+    # 验证必填字段
+    if not new_title or not new_content:
+        return jsonify(message="标题和内容不能为空", success=False), 200
+
+    # 更新项目的标题和内容
+    project.title = new_title
+    project.content = new_content
+
+    # 提交更改到数据库
+    db.session.commit()
+
+    return jsonify(message="项目更新成功", project={
+        'id': project.id,
+        'title': project.title,
+        'content': project.content
+    }, success=True), 200

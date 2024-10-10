@@ -3,8 +3,25 @@
     <h1 class="title">项目管理</h1>
     <ul class="projects-list">
       <li v-for="project in projects" :key="project.id" class="project-card">
-        <h2 class="project-title">{{ project.title }}</h2>
-        <p class="project-content">{{ project.content }}</p>
+        <div v-if="!project.isEditing">
+          <h2 class="project-title">{{ project.title }}</h2>
+          <p class="project-content">{{ project.content }}</p>
+          <button @click="editProject(project)" class="edit-button">编辑</button>
+        </div>
+
+        <div v-else>
+          <input 
+            v-model="project.title" 
+            class="edit-title-input" 
+            placeholder="编辑标题"
+          />
+          <textarea 
+            v-model="project.content" 
+            class="edit-content-input" 
+            placeholder="编辑内容"
+          ></textarea>
+          <button @click="submitEdit(project)" class="submit-button">提交</button>
+        </div>
 
         <!-- 添加项目图片显示 -->
         <div class="images-container">
@@ -27,7 +44,6 @@
             </li>
           </ul>
 
-          发布公告文本框和按钮
           <div class="announce-container">
             <input 
               v-model="announcementMessage" 
@@ -51,7 +67,6 @@
       </li>
     </ul>
 
-    <!-- 自定义弹窗 -->
     <div v-if="showConfirmDialog" class="confirm-dialog-overlay">
       <div class="confirm-dialog">
         <p>确定要删除该项目吗？</p>
@@ -63,7 +78,6 @@
     </div>
   </div>
 </template>
-
 
 <script>
 import axios from 'axios';
@@ -88,9 +102,37 @@ export default {
             Authorization: `Bearer ${localStorage.getItem('token')}`
           }
         });
-        this.projects = response.data;
+        this.projects = response.data.map(project => ({
+          ...project,
+          isEditing: false  // 新增字段，用于控制编辑状态
+        }));
       } catch (error) {
         console.error('获取项目失败:', error);
+      }
+    },
+    editProject(project) {
+      project.isEditing = true;  // 切换到编辑模式
+    },
+    async submitEdit(project) {
+      try {
+        const response = await axios.put(`http://localhost:5000/edit-project/${project.id}`, {
+          title: project.title,
+          content: project.content
+        }, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+
+        if (response.status === 200) {
+          project.isEditing = false;  // 提交成功后退出编辑模式
+          this.fetchProjects();  // 刷新项目列表
+        } else {
+          alert('更新项目失败！');
+        }
+      } catch (error) {
+        alert('更新项目失败！');
+        console.error('更新项目失败:', error);
       }
     },
     confirmDelete(projectId) {
@@ -450,6 +492,39 @@ body::-webkit-scrollbar {
   width: 0;
 }
 
+.edit-title-input, .edit-content-input {
+  width: 100%;
+  margin: 10px 0;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.submit-button {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.submit-button:hover {
+  background-color: #218838;
+}
+
+.edit-button{
+  background-color: #287fa7;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.edit-button:hover {
+  background-color: #287fa7;
+}
 
 </style>
 
